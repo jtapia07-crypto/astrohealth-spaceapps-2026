@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { DemoTag, PageHead } from '@/components/shell';
 import { ShipExterior, type PartId } from '@/components/ship-exterior';
 import { useStore } from '@/lib/store';
@@ -43,7 +42,7 @@ const STATE_LABEL: Record<PartState, string> = { nominal: 'Nominal', degradado: 
 const stColor = (ok: boolean) => (ok ? 'text-accent' : 'text-destructive');
 
 export default function NavePage() {
-  usePageMeta('Ship', 'Interactive exterior and interior systems of the simulated spacecraft with editable inputs.');
+  usePageMeta('Ship', 'Interactive exterior and interior systems of the simulated spacecraft with environmental readings.');
   const { ship, setShip, resetShip, myLogs, selected, eventRecords } = useStore();
   const [view, setView] = useState<'ship' | 'history'>('ship');
   const shipAlerts = useMemo(() => deriveAlerts(ship, myLogs[0], selected).filter((a) => a.source === 'nave'), [ship, myLogs, selected]);
@@ -100,11 +99,10 @@ export default function NavePage() {
         </div>
         <aside className="panel rise space-y-4 p-5">
           <div className="flex items-center justify-between gap-3"><h2 className="font-display text-lg" data-testid="environmental-parameters-heading">Environmental parameters · {inside ? 'Internal' : 'External'}</h2><Button size="sm" variant="ghost" onClick={() => { resetShip(); toast({ title: 'Ship reset to nominal values' }); }} data-testid="button-reset-ship"><RotateCcw />Nominal</Button></div>
-          <p className="text-xs text-muted-foreground">Edit values to explore scenarios. This does not control any real spacecraft.</p>
+          <p className="text-xs text-muted-foreground">Simulated readings. This does not monitor or control any real spacecraft.</p>
           {INPUTS.map((i) => (
             <div key={i.k} className="space-y-1.5">
               <div className="flex justify-between text-sm"><span>{i.l}</span><span className={`font-mono ${stColor(inRange(i))}`} data-testid={`value-${i.k}`}>{ship[i.k]} {i.u}</span></div>
-              <Slider min={i.min} max={i.max} step={i.step} value={[ship[i.k]]} onValueChange={([v]) => upd(i.k, Math.round(v * 100) / 100)} data-testid={`slider-${i.k}`} aria-label={i.l} />
             </div>
           ))}
         </aside>
