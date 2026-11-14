@@ -24,17 +24,19 @@ export default function HealthPage() {
     <>
       <PageHead kicker="Body log · crew member" title="The body in orbit"><DemoTag text="Illustrative scores" /></PageHead>
       {urgent && <Link href="/critico" data-testid="banner-urgent" className="rise mb-5 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/15 p-4 text-sm"><AlertOctagon className="h-6 w-6 shrink-0 text-destructive" /><span><b className="font-display tracking-wide">Urgent medical escalation.</b> A red-flag symptom was logged (chest pain, severe breathing difficulty or neurological deficit). Contact the flight surgeon immediately.</span><ArrowRight className="ml-auto h-4 w-4" /></Link>}
-      <section className="mb-6">
+      <div className="grid min-w-0 grid-cols-1 items-start gap-6 md:grid-cols-[15rem_minmax(0,1fr)]">
+      <aside aria-label="Crew selection" className="min-w-0 md:sticky md:top-24">
         <p className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Crew selection</p>
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex flex-col gap-2">
           {crew.map((c) => (
-            <button key={c.id} onClick={() => selectId(c.id)} data-testid={`button-crew-${c.id}`} className={`flex min-w-[13rem] items-center gap-3 rounded-xl border p-3 text-left transition-all duration-300 hover:-translate-y-0.5 ${c.id === selected.id ? 'border-primary bg-primary/10' : 'border-border bg-card/60 hover:border-primary/40'}`}>
-              <span className="font-display grid h-10 w-10 place-items-center rounded-full bg-secondary text-sm font-bold">{c.name.split(' ').map((s) => s[0]).slice(0, 2).join('')}</span>
+            <button key={c.id} onClick={() => selectId(c.id)} aria-pressed={c.id === selected.id} data-testid={`button-crew-${c.id}`} className={`flex w-full min-w-0 items-center gap-3 rounded-xl border p-3 text-left transition-all duration-300 hover:-translate-y-0.5 ${c.id === selected.id ? 'border-primary bg-primary/10' : 'border-border bg-card/60 hover:border-primary/40'}`}>
+              <span className="font-display grid h-10 w-10 shrink-0 place-items-center rounded-full bg-secondary text-sm font-bold">{c.name.split(' ').map((s) => s[0]).slice(0, 2).join('')}</span>
               <span className="min-w-0"><span className="block truncate font-semibold">{c.name}</span><span className="block truncate text-xs text-muted-foreground">{c.role}{c.demo ? ' · demo' : ''}</span></span>
             </button>
           ))}
         </div>
-      </section>
+      </aside>
+      <div className="min-w-0">
       <BodyNav open={panel} onToggle={(id) => setPanel((p) => (p === id ? null : id))} />
       <Collapse id="profile" open={panel === 'profile'} title={`Profile · ${selected.name}`}><ProfilePanel /></Collapse>
       <Collapse id="crew" open={panel === 'crew'} title="Crew overview · other members"><CrewPanel /></Collapse>
@@ -51,6 +53,8 @@ export default function HealthPage() {
         <p className="absolute inset-x-0 bottom-3 text-center font-mono text-[11px] text-muted-foreground">Tap or focus a body point to open its report</p>
       </div>
       <div className="mt-4 rounded-xl border border-border p-4 text-xs leading-relaxed text-muted-foreground"><Info className="mb-1 h-4 w-4" />Scores derived from the profile, the latest garden log ({log ? log.date : 'no logs'}) and simulated ship telemetry. They are not diagnoses and do not replace evaluation by a professional.</div>
+      </div>
+      </div>
       <Dialog open={!!r} onOpenChange={(o) => !o && setOpen(null)}>
         <DialogContent className="organ-dialog max-h-[90dvh] overflow-y-auto border-border bg-card sm:max-w-4xl">
           {r && <div key={r.id} className="grid gap-5 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"><div className="min-w-0 space-y-4 md:order-1">
