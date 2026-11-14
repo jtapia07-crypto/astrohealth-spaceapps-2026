@@ -1,0 +1,1 @@
+- [Propósito de Órbita](orbita-purpose.md) — salud de astronautas, nave y jardín de bienestar con estados independientes y referencias de NASA.

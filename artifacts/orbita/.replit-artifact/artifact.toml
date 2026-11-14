@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Órbita · Salud y misión"
+description = "Simulador espacial interactivo en español para explorar la salud de astronautas, sistemas de la nave, alertas y bienestar mediante un jardín personal y registros diarios."
+version = "1.0.0"
+id = "artifacts/orbita"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22619
+
+[services.development]
+run = "pnpm --filter @workspace/orbita run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/orbita", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/orbita/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22619"
+BASE_PATH = "/"
