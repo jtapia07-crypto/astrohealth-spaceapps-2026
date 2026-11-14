@@ -93,6 +93,7 @@ export function BodyFigure({ reports, active, onSelect }: { reports: HotspotRepo
           <stop offset=".5" stopColor="hsl(140 50% 70% / .8)" />
           <stop offset="1" stopColor="hsl(150 45% 50% / .6)" />
         </linearGradient>
+        <linearGradient id="bf-rim" x1="0" x2="1"><stop offset="0" stopColor="hsl(226 50% 6% / .45)" /><stop offset=".22" stopColor="hsl(226 50% 6% / 0)" /><stop offset=".78" stopColor="hsl(226 50% 6% / 0)" /><stop offset="1" stopColor="hsl(226 50% 6% / .5)" /></linearGradient>
         <clipPath id="bf-clip"><path d={BODY} /><path d={HEAD} /></clipPath>
       </defs>
 
@@ -106,6 +107,7 @@ export function BodyFigure({ reports, active, onSelect }: { reports: HotspotRepo
         <path d="M93 66 L93 78 M107 66 L107 78" fill="none" strokeOpacity=".35" />
       </g>
       <path d={BODY} fill="url(#bf-sheen)" pointerEvents="none" />
+      <g fill="url(#bf-rim)" pointerEvents="none"><path d={BODY} /><path d={HEAD} /></g>
       {/* Ear hints */}
       <g fill="none" stroke="hsl(195 50% 80% / .35)" strokeWidth=".7">
         <path d="M81 39 Q80.6 43 82.5 46 M119 39 Q119.4 43 117.5 46" />

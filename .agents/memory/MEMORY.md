@@ -1,1 +1,1 @@
-- [Propósito de Órbita](orbita-purpose.md) — salud de astronautas, nave y jardín de bienestar con estados independientes y referencias de NASA.
+- [AstroHealth Guardian](orbita-purpose.md) — salud, nave y jardín independientes; interfaz en inglés y anatomía realista con ilustraciones animadas.

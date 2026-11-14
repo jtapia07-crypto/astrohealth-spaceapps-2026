@@ -9,7 +9,7 @@ export const blankProfile = (id: string): Profile => ({ ...base, id, demo: false
 export const DEFAULT_SHIP: Ship = { o2: 20.9, co2: 2.8, pressure: 101.3, temp: 22.4, gravity: 0, humidity: 46, radiation: 0.62, water: 78, energy: 84, windows: 'nominal', thrusters: 'nominal', solar: 'nominal', hull: 'nominal', comms: 'nominal' };
 export const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
 export const shiftISO = (iso: string, days: number) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); };
-export const DEFAULT_MISSION = (): Mission => ({ destination: 'moon', startDate: todayISO(), durationDays: 12, crewCount: 3, callsign: 'Orbita-1' });
+export const DEFAULT_MISSION = (): Mission => ({ destination: 'moon', startDate: todayISO(), durationDays: 12, crewCount: 3, callsign: 'Guardian-1' });
 export const seedLogs = (): DailyLog[] => {
   const t = todayISO();
   return [
@@ -40,4 +40,4 @@ export function migrateProfiles(crew: Profile[]): Profile[] {
 export function migrateLogs(logs: DailyLog[]): DailyLog[] {
   return logs.map((l) => (['s1', 's2', 's3'].includes(l.id) ? { ...l, meals: tr(l.meals), notes: tr(l.notes) } : l));
 }
-export function migrateMission(m: Mission): Mission { return m.callsign === 'Órbita-1' ? { ...m, callsign: 'Orbita-1' } : m; }
+export function migrateMission(m: Mission): Mission { return (m.callsign === 'Órbita-1' || m.callsign === 'Orbita-1') ? { ...m, callsign: 'Guardian-1' } : m; }

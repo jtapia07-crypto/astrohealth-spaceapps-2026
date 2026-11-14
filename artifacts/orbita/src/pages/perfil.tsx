@@ -29,7 +29,7 @@ export default function PerfilPage() {
   const num = (k: keyof Profile) => (e: React.ChangeEvent<HTMLInputElement>) => set(k, Number(e.target.value) as never);
   const txt = (k: keyof Profile) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => set(k, e.target.value as never);
   const saveIt = () => { if (!f.name.trim()) { toast({ title: 'Name is required', variant: 'destructive' }); return; } updateProfile(f); toast({ title: 'Profile saved', description: `Changes for ${f.name} are now reflected in the body map, alerts and garden.` }); };
-  const doExport = () => { const blob = new Blob([JSON.stringify(exportAll(), null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'orbita-local-data.json'; a.click(); URL.revokeObjectURL(a.href); toast({ title: 'Data exported' }); };
+  const doExport = () => { const blob = new Blob([JSON.stringify(exportAll(), null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'astrohealth-guardian-local-data.json'; a.click(); URL.revokeObjectURL(a.href); toast({ title: 'Data exported' }); };
   const field = (id: keyof Profile, label: string, type: 'text' | 'number' = 'text', step?: string) => (
     <div className="space-y-1.5"><Label htmlFor={id} className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">{label}</Label>
       <Input id={id} type={type} step={step} value={String(f[id])} onChange={type === 'number' ? num(id) : txt(id)} data-testid={`input-${id}`} className="bg-background/60" /></div>

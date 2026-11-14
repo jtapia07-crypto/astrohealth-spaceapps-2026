@@ -60,8 +60,8 @@ export default function NavePage() {
         <div className="space-y-5">
           {!inside ? (
             <div className="panel rise overflow-hidden p-3">
-              <div className="aspect-[640/300]"><ShipExterior ship={ship} active={part} onPart={setPart} onEnter={() => setInside(true)} /></div>
-              <p className="pb-1 text-center font-mono text-[11px] text-muted-foreground">Tap windows, thrusters, panels, hull or antenna. Press ENTER in the center to see the interior.</p>
+              <div className="aspect-[1000/762]"><ShipExterior ship={ship} active={part} onPart={setPart} onEnter={() => setInside(true)} /></div>
+              <p className="pb-1 text-center font-mono text-[11px] text-muted-foreground">Tap windows, thrusters, panels, hull or antenna. Press ENTER to see the interior. Illustrative spacecraft, not a real vehicle.</p>
             </div>
           ) : (
             <div className="panel rise p-4">

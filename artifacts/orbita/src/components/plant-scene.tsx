@@ -30,7 +30,7 @@ export function PlantScene({ plant, climate, weather, stage, health, empty }: { 
       {climate === 'tropical' && <path d="M360 250 Q356 200 366 170 M366 170 q-30 -6 -42 10 M366 170 q30 -8 36 10 M366 170 q-8 -26 -28 -28" stroke="hsl(140 40% 28%)" strokeWidth="5" fill="none" strokeLinecap="round" />}
       {climate === 'bosque' && <g fill="hsl(150 35% 20%)"><path d="M30 255 l20 -60 l20 60z" /><path d="M350 255 l18 -52 l18 52z" /></g>}
       <path d="M160 248 h80 l-10 52 h-60z" fill="hsl(22 70% 48%)" /><rect x="154" y="242" width="92" height="12" rx="3" fill="hsl(22 70% 40%)" />
-      <text x="200" y="282" textAnchor="middle" fontFamily="Chakra Petch" fontSize="10" fill="hsl(40 40% 92%)" letterSpacing="2">ÓRBITA</text>
+      <text x="200" y="282" textAnchor="middle" fontFamily="Chakra Petch" fontSize="10" fill="hsl(40 40% 92%)" letterSpacing="1">ASTROHEALTH</text>
       <g className="sway">
         {empty ? <circle cx="200" cy="238" r="5" fill="hsl(30 40% 30%)" /> : <>
           <path d={`M200 244 Q${196 + droop / 3} ${244 - h / 2} ${200 + droop} ${244 - h}`} stroke={plant === 'bonsai' ? 'hsl(25 35% 32%)' : 'hsl(110 40% 34%)'} strokeWidth={plant === 'bonsai' ? 8 : 4} fill="none" strokeLinecap="round" />

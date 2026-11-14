@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { AlertOctagon, ArrowRight, HeartPulse, Info, ShieldAlert, Stethoscope } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { BodyFigure } from '@/components/body-figure';
+import { OrganVisual } from '@/components/medical/organ-visual';
 import { DemoTag, PageHead } from '@/components/shell';
 import { useStore } from '@/lib/store';
 import { healthReports, LEVEL_COLOR, LEVEL_LABEL, type HotspotId } from '@/lib/health';
@@ -55,8 +56,8 @@ export default function HealthPage() {
         </div>
       </div>
       <Dialog open={!!r} onOpenChange={(o) => !o && setOpen(null)}>
-        <DialogContent className="max-h-[88dvh] overflow-y-auto border-border bg-card sm:max-w-xl">
-          {r && <>
+        <DialogContent className="organ-dialog max-h-[90dvh] overflow-y-auto border-border bg-card sm:max-w-4xl">
+          {r && <div key={r.id} className="grid gap-5 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"><div className="min-w-0 space-y-4 md:order-1">
             <DialogHeader>
               <p className="font-mono text-[11px] uppercase tracking-widest" style={{ color: LEVEL_COLOR[r.level] }}>{LEVEL_LABEL[r.level]} · {r.score}/100 illustrative</p>
               <DialogTitle className="font-display text-3xl">{r.label}</DialogTitle>
@@ -68,7 +69,7 @@ export default function HealthPage() {
             <div><h4 className="font-display mb-1 flex items-center gap-2 text-sm uppercase tracking-wider text-primary"><Stethoscope className="h-4 w-4" />General actions on board</h4><ul className="space-y-1.5 text-sm">{r.actions.map((a) => <li key={a} className="flex gap-2"><span className="mt-2 h-1 w-3 shrink-0 bg-primary" />{a}</li>)}</ul></div>
             {r.disclaimer && <p className="rounded-lg border border-chart-3/40 bg-chart-3/10 p-3 text-xs text-chart-3">{r.disclaimer}</p>}
             <p className="text-[11px] text-muted-foreground">General educational steps, not prescriptions. For serious symptoms: flight surgeon / mission control.</p>
-          </>}
+          </div><div className="min-w-0 md:order-2 md:sticky md:top-0 md:self-start"><OrganVisual id={r.id} /></div></div>}
         </DialogContent>
       </Dialog>
     </>

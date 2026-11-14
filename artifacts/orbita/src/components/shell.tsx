@@ -23,7 +23,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
           <Link href="/" className="flex items-center gap-2" data-testid="link-home">
             <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden><circle cx="16" cy="16" r="6" fill="hsl(22 95% 58%)" /><ellipse cx="16" cy="16" rx="14" ry="5.5" fill="none" stroke="hsl(172 58% 52%)" strokeWidth="1.5" transform="rotate(-24 16 16)" /></svg>
-            <span className="font-display text-lg font-bold tracking-[0.25em]">ÓRBITA</span>
+            <span className="font-display text-base font-bold tracking-[0.12em] sm:text-lg">AstroHealth Guardian</span>
           </Link>
           <span className="hidden rounded-full border border-primary/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-primary sm:inline">Educational simulator</span>
           <span className="ml-auto hidden font-mono text-xs text-muted-foreground md:inline">{mission.callsign} · {selected.name}</span>
