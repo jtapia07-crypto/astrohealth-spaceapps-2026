@@ -46,3 +46,9 @@ Critical deja de ser una sección de la navegación inferior: los eventos de sal
 **Why:** La persona usuaria pidió distribuir los eventos de Critical según su origen, agregar historial en Ship y reforzar la ambientación espacial.
 
 **How to apply:** Mantener causas, acciones, reconocimiento y resolución al redistribuir los eventos; el historial conserva las notas aunque desaparezca el disparador. La salud es por tripulante y la nave compartida.
+
+La planta y su entorno inmediato deben parecer una ilustración botánica más natural, con hojas modeladas, nervaduras y paisaje con profundidad, no íconos geométricos planos.
+
+**Why:** La persona usuaria aportó una ilustración botánica como referencia «solo del estilo visual», no para cambiar la especie.
+
+**How to apply:** Mejorar el acabado sin sustituir las especies elegidas ni alterar el crecimiento, la salud o la independencia del clima respecto de los registros personales.
