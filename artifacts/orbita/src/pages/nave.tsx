@@ -99,7 +99,7 @@ export default function NavePage() {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">{(Object.keys(PARTS) as PartId[]).map((p) => <button key={p} onClick={() => { setInside(false); setPart(p); }} data-testid={`chip-part-${p}`} className="rounded-lg border border-border bg-card/60 p-2 text-left text-xs transition hover:border-primary/50"><div className="text-muted-foreground">{PARTS[p].l}</div><div className={`font-mono capitalize ${ship[p] === 'nominal' ? 'text-accent' : ship[p] === 'degradado' ? 'text-chart-3' : 'text-destructive'}`}>{STATE_LABEL[ship[p]]}</div></button>)}</div>
         </div>
         <aside className="panel rise space-y-4 p-5">
-          <div className="flex items-center justify-between"><h2 className="font-display text-lg">Simulation inputs</h2><Button size="sm" variant="ghost" onClick={() => { resetShip(); toast({ title: 'Ship reset to nominal values' }); }} data-testid="button-reset-ship"><RotateCcw />Nominal</Button></div>
+          <div className="flex items-center justify-between gap-3"><h2 className="font-display text-lg" data-testid="environmental-parameters-heading">Environmental parameters · {inside ? 'Internal' : 'External'}</h2><Button size="sm" variant="ghost" onClick={() => { resetShip(); toast({ title: 'Ship reset to nominal values' }); }} data-testid="button-reset-ship"><RotateCcw />Nominal</Button></div>
           <p className="text-xs text-muted-foreground">Edit values to explore scenarios. This does not control any real spacecraft.</p>
           {INPUTS.map((i) => (
             <div key={i.k} className="space-y-1.5">
