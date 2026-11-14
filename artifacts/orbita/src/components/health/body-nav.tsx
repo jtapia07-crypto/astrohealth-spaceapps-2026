@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { Link } from 'wouter';
-import { ArrowRight, History, LayoutGrid, Users, UserRound } from 'lucide-react';
+import { Activity, ArrowRight, History, LayoutGrid, Users, UserRound } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { healthReports, LEVEL_COLOR, LEVEL_LABEL, type HotspotId, type HotspotReport, type Level } from '@/lib/health';
 import { EmergencyHistory } from './emergency-history';
 
-export type PanelId = 'profile' | 'crew' | 'detail' | 'history';
+export type PanelId = 'biometric' | 'profile' | 'crew' | 'detail' | 'history';
 const TABS: { id: PanelId; label: string; icon: typeof UserRound }[] = [
+  { id: 'biometric', label: 'Biometric data', icon: Activity },
   { id: 'profile', label: 'Profile', icon: UserRound },
   { id: 'crew', label: 'Crew overview', icon: Users },
   { id: 'detail', label: 'Detailed view', icon: LayoutGrid },

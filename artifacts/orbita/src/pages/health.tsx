@@ -16,7 +16,7 @@ export default function HealthPage() {
   const log = myLogs[0];
   const reports = useMemo(() => healthReports(selected, ship, log), [selected, ship, log]);
   const [open, setOpen] = useState<HotspotId | null>(null);
-  const [panel, setPanel] = useState<PanelId | null>(null);
+  const [panel, setPanel] = useState<PanelId>('biometric');
   const r = reports.find((x) => x.id === open);
   const urgent = log?.symptoms.some((s) => ['dolor_pecho', 'falta_aire', 'neurologico'].includes(s));
   const overall = Math.round(reports.reduce((s, x) => s + x.score, 0) / reports.length);
@@ -37,11 +37,12 @@ export default function HealthPage() {
         </div>
       </aside>
       <div className="min-w-0">
-      <BodyNav open={panel} onToggle={(id) => setPanel((p) => (p === id ? null : id))} />
+      <BodyNav open={panel} onToggle={setPanel} />
       <Collapse id="profile" open={panel === 'profile'} title={`Profile · ${selected.name}`}><ProfilePanel /></Collapse>
       <Collapse id="crew" open={panel === 'crew'} title="Crew overview · other members"><CrewPanel /></Collapse>
       <Collapse id="detail" open={panel === 'detail'} title="Detailed view · eight indicators"><DetailPanel reports={reports} onOpen={setOpen} /></Collapse>
       <Collapse id="history" open={panel === 'history'} title="Historical records · resolved emergencies"><HistoryPanel /></Collapse>
+      {panel === 'biometric' && <section id="panel-biometric" aria-label="Biometric data" data-testid="panel-biometric">
       <div className="panel rise relative h-[560px] min-w-0 overflow-hidden p-2 md:h-[640px]">
         <div className="absolute left-4 top-4 z-10 font-mono text-[11px] text-muted-foreground">
           <div>{selected.name.toUpperCase()}</div><div>Simulated gravity · {ship.gravity} g</div>
@@ -53,6 +54,7 @@ export default function HealthPage() {
         <p className="absolute inset-x-0 bottom-3 text-center font-mono text-[11px] text-muted-foreground">Tap or focus a body point to open its report</p>
       </div>
       <div className="mt-4 rounded-xl border border-border p-4 text-xs leading-relaxed text-muted-foreground"><Info className="mb-1 h-4 w-4" />Scores derived from the profile, the latest garden log ({log ? log.date : 'no logs'}) and simulated ship telemetry. They are not diagnoses and do not replace evaluation by a professional.</div>
+      </section>}
       </div>
       </div>
       <Dialog open={!!r} onOpenChange={(o) => !o && setOpen(null)}>

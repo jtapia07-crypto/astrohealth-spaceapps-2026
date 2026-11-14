@@ -23,8 +23,8 @@ La nave conserva un acabado realista. **Solo dentro de las fichas que se abren a
 
 **How to apply:** Conservar el idioma inglés y las funciones existentes mientras se mejora la profundidad visual. Las animaciones son ilustrativas, no mediciones fisiológicas reales.
 
-Encima del mapa humano debe haber cuatro controles horizontales: Profile, Crew overview, Detailed view y Historical records. Los datos personales y basales permanecen ocultos hasta abrir Profile; los indicadores detallados se muestran al abrir Detailed view. Crew overview resume a los demás miembros, no a la persona seleccionada. El historial registra emergencias resueltas y el método más eficaz usado, con ejemplos identificados como ficticios y un formulario para guardar nuevos casos por tripulante.
+La navegación de salud tiene cinco opciones horizontales, con **Biometric data** primero y abierto al inicio, seguido de Profile, Crew overview, Detailed view y Historical records. El diagrama corporal aparece **solo** en Biometric data, nunca junto a los otros paneles. Los datos personales y basales permanecen ocultos hasta abrir Profile; los indicadores detallados se muestran al abrir Detailed view. Crew overview resume a los demás miembros, no a la persona seleccionada. El historial registra emergencias resueltas y el método más eficaz usado, con ejemplos identificados como ficticios y un formulario para guardar nuevos casos por tripulante.
 
-**Why:** La persona usuaria solicitó esta separación de información y el registro interactivo de las emergencias después de resolverlas.
+**Why:** La persona usuaria solicitó esta separación de información y aclaró que la primera opción debe ser datos biométricos y que el cuerpo «solo salga ahí, no en las otras opciones».
 
 **How to apply:** No volver a mostrar de forma permanente los paneles de información privada o detallada, y no mezclar registros entre tripulantes ni presentar los métodos registrados como recomendaciones médicas probadas.
