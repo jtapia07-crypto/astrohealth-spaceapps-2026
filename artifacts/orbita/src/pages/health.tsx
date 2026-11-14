@@ -4,6 +4,7 @@ import { AlertOctagon, ArrowRight, HeartPulse, Info, ShieldAlert, Stethoscope } 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { BodyFigure } from '@/components/body-figure';
 import { OrganVisual } from '@/components/medical/organ-visual';
+import { BiometricWarnings } from '@/components/health/biometric-warnings';
 import { DemoTag, PageHead } from '@/components/shell';
 import { useStore } from '@/lib/store';
 import { BodyNav, Collapse, CrewPanel, DetailPanel, HistoryPanel, ProfilePanel, type PanelId } from '@/components/health/body-nav';
@@ -43,6 +44,7 @@ export default function HealthPage() {
       <Collapse id="detail" open={panel === 'detail'} title="Detailed view · eight indicators"><DetailPanel reports={reports} onOpen={setOpen} /></Collapse>
       <Collapse id="history" open={panel === 'history'} title="Historical records · resolved emergencies"><HistoryPanel /></Collapse>
       {panel === 'biometric' && <section id="panel-biometric" aria-label="Biometric data" data-testid="panel-biometric">
+      <BiometricWarnings reports={reports} onOpen={setOpen} />
       <div className="panel rise relative h-[560px] min-w-0 overflow-hidden p-2 md:h-[640px]">
         <div className="absolute left-4 top-4 z-10 font-mono text-[11px] text-muted-foreground">
           <div>{selected.name.toUpperCase()}</div><div>Simulated gravity · {ship.gravity} g</div>

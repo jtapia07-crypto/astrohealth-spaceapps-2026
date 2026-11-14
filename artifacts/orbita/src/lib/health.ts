@@ -11,16 +11,18 @@ export function healthReports(p: Profile, ship: Ship, log?: DailyLog): HotspotRe
   const hyd = log?.hydration ?? 2;
   const ex = log?.exercise ?? 90;
   const micro = ship.gravity < 0.3;
+  const highPressure = p.sbp > 135 || p.dbp >= 90;
+  const veryHighPressure = p.sbp >= 180 || p.dbp >= 120;
   const head = clamp(100 - Math.max(0, ship.co2 - 3) * 12 - Math.max(0, p.sleepGoal - sleep) * 8 - (sym.includes('cefalea') ? 15 : 0) - (sym.includes('neurologico') ? 60 : 0) - ((log?.stress ?? 2) - 2) * 5);
   const eyes = clamp(100 - (micro ? 12 : 0) - (sym.includes('congestion') ? 10 : 0) - (sym.includes('cefalea') ? 6 : 0) - (sym.includes('neurologico') ? 60 : 0) - Math.max(0, ship.co2 - 4) * 5 - Math.max(0, p.sleepGoal - sleep) * 3);
-  const heart = clamp(100 - (sym.includes('dolor_pecho') ? 65 : 0) - Math.max(0, p.hr - 90) * 2 - Math.max(0, p.sbp - 135) * 1.5 - Math.max(0, ship.temp - 27) * 4);
+  const heart = Math.min(highPressure ? (veryHighPressure ? 49 : 74) : 100, clamp(100 - (sym.includes('dolor_pecho') ? 65 : 0) - Math.max(0, p.hr - 90) * 2 - Math.max(0, p.sbp - 135) * 1.5 - Math.max(0, ship.temp - 27) * 4));
   const bones = clamp(100 - (micro ? 18 : 0) - Math.max(0, 90 - ex) * 0.3 - (ship.radiation > 1 ? 6 : 0));
   const muscle = clamp(100 - (micro ? 14 : 0) - Math.max(0, 90 - ex) * 0.35 - (sym.includes('fatiga') ? 10 : 0));
   const blood = clamp(100 - Math.max(0, 19.5 - ship.o2) * 18 - Math.max(0, 96 - p.spo2) * 8 - Math.max(0, ship.radiation - 1) * 6 - (sym.includes('falta_aire') ? 50 : 0));
   const sweat = clamp(100 - Math.max(0, 2.2 - hyd) * 30 - Math.max(0, ship.temp - 26) * 6 - Math.max(0, ship.humidity - 70));
   const saliva = clamp(100 - Math.max(0, 2.2 - hyd) * 25 - Math.max(0, 30 - ship.humidity) * 2);
   const conservative = 'If it gets worse, contact the flight surgeon. Do not start or change medication without authorized instruction.';
-  return [
+  const reports: HotspotReport[] = [
     { id: 'cabeza', label: 'Head', score: head, level: lvl(head), metrics: [{ k: 'Cabin CO2', v: ship.co2 + ' mmHg' }, { k: 'Sleep', v: sleep + ' h' }, { k: 'Stress', v: (log?.stress ?? '-') + ' / 5' }],
       condition: ship.co2 > 4 ? 'Elevated CO2: can cause headache, drowsiness and slower thinking.' : sleep < p.sleepGoal - 1.5 ? 'Accumulated sleep debt affects attention and mood.' : 'No notable signals in the current log.',
       spaceflight: 'In microgravity, body fluids shift toward the head (puffy face, congestion) and vision changes (SANS) are studied. CO2 builds up where ventilation is poor.',
@@ -33,10 +35,10 @@ export function healthReports(p: Profile, ship: Ship, log?: DailyLog): HotspotRe
       warning: sym.includes('neurologico') ? 'URGENT: sudden vision loss or change, weakness or altered speech. Contact the flight surgeon immediately.' : undefined,
       disclaimer: 'Observations, not a diagnosis. This app records no eye measurements. Any sudden vision change requires contacting the flight surgeon.' },
     { id: 'corazon', label: 'Heart', score: heart, level: lvl(heart), metrics: [{ k: 'Resting HR', v: p.hr + ' bpm' }, { k: 'Blood pressure', v: p.sbp + '/' + p.dbp + ' mmHg' }, { k: 'Cabin temp', v: ship.temp + ' °C' }],
-      condition: sym.includes('dolor_pecho') ? 'Chest pain reported: requires immediate medical evaluation.' : 'Profile baseline values within an illustrative range.',
+      condition: sym.includes('dolor_pecho') ? 'Chest pain reported: requires immediate medical evaluation.' : highPressure ? `High blood pressure in stored baseline: ${p.sbp}/${p.dbp} mmHg. Not a live measurement or diagnosis.` : p.hr > 90 ? `Elevated stored resting heart rate: ${p.hr} bpm.` : ship.temp > 27 ? `High cabin temperature: ${ship.temp} °C increases cardiovascular strain.` : 'Profile baseline values within an illustrative range.',
       spaceflight: 'Without gravity the heart works less and can lose mass; on return, orthostatic intolerance (dizziness when standing up) may appear.',
-      actions: ['Keep the scheduled cardiovascular exercise.', 'Regular hydration.', conservative],
-      warning: sym.includes('dolor_pecho') ? 'URGENT: chest pain. Stop activity, alert a crewmate and the flight surgeon.' : undefined },
+      actions: highPressure ? ['Rest and arrange a repeat blood pressure measurement using the authorized mission procedure; the displayed value is a stored baseline.', 'Report the value and any symptoms to the flight surgeon before strenuous exercise.', 'For chest pain, severe breathing difficulty or neurological symptoms, contact the flight surgeon immediately.', conservative] : ['Keep the scheduled cardiovascular exercise.', 'Regular hydration.', conservative],
+      warning: sym.includes('dolor_pecho') ? 'URGENT: chest pain. Stop activity, alert a crewmate and the flight surgeon.' : veryHighPressure ? 'Very high stored blood pressure. Promptly contact the flight surgeon for reassessment; if current and accompanied by symptoms, escalate immediately.' : undefined },
     { id: 'huesos', label: 'Bones', score: bones, level: lvl(bones), metrics: [{ k: 'Gravity', v: ship.gravity + ' g' }, { k: 'Exercise', v: ex + ' min' }, { k: 'Radiation', v: ship.radiation + ' mSv/d' }],
       condition: micro ? 'Microgravity: bone loses density without mechanical loading (deconditioning).' : 'Partial or Earth gravity: less bone loss expected.',
       spaceflight: 'On the ISS, bone density loss of roughly 1-1.5% per month has been observed in weight-bearing areas such as the hip.',
@@ -61,6 +63,20 @@ export function healthReports(p: Profile, ship: Ship, log?: DailyLog): HotspotRe
       actions: ['Sip water throughout the day.', 'Usual oral hygiene.', 'Report persistent dryness to the flight surgeon.'],
       disclaimer: 'Nothing is diagnosed from saliva. It is an observation/hydration indicator, not a lab result.' },
   ];
+  const reasons: Partial<Record<HotspotId, string[]>> = {
+    cabeza: [ship.co2 > 3 ? `Cabin CO2 ${ship.co2} mmHg adds to the simulated risk` : '', sleep < p.sleepGoal ? `Sleep below goal: ${sleep} / ${p.sleepGoal} h` : '', sym.includes('cefalea') ? 'Headache logged' : '', (log?.stress ?? 2) > 2 ? `Stress ${log?.stress}/5` : ''],
+    ojos: [micro ? 'Microgravity-related fluid-shift observation (no eye measurements)' : '', sym.includes('congestion') ? 'Facial congestion logged' : '', sym.includes('cefalea') ? 'Headache logged' : '', ship.co2 > 4 ? `Elevated cabin CO2: ${ship.co2} mmHg` : '', sleep < p.sleepGoal ? `Sleep below goal: ${sleep} / ${p.sleepGoal} h` : ''],
+    huesos: [micro ? 'Reduced mechanical loading in microgravity' : '', ex < 90 ? `Exercise below simulation reference: ${ex} / 90 min` : '', ship.radiation > 1 ? `Elevated simulated radiation: ${ship.radiation} mSv/d` : ''],
+    musculo: [ex < 90 ? `Exercise below simulation reference: ${ex} / 90 min` : '', micro ? 'Muscle deconditioning risk in microgravity' : '', sym.includes('fatiga') ? 'Marked fatigue logged' : ''],
+    sangre: [ship.o2 < 19.5 ? `Low cabin oxygen: ${ship.o2}%` : '', p.spo2 < 96 ? `Low stored baseline SpO2: ${p.spo2}%` : '', ship.radiation > 1 ? `Elevated simulated radiation: ${ship.radiation} mSv/d` : ''],
+    sudor: [hyd < 2.2 ? `Hydration below simulation reference: ${hyd} / 2.2 L` : '', ship.temp > 26 ? `High cabin temperature: ${ship.temp} °C` : '', ship.humidity > 70 ? `High cabin humidity: ${ship.humidity}%` : ''],
+    saliva: [hyd < 2.2 ? `Hydration below simulation reference: ${hyd} / 2.2 L` : '', ship.humidity < 30 ? `Dry cabin air: ${ship.humidity}% humidity` : ''],
+  };
+  return reports.map((report) => {
+    if (report.level === 'estable' || report.id === 'corazon') return report;
+    const factors = reasons[report.id]?.filter(Boolean) ?? [];
+    return { ...report, condition: report.warning ?? (factors.length ? factors.join(' · ') : 'Illustrative index below the stable range. Review the values and contact the flight surgeon if symptoms occur.') };
+  });
 }
 export const LEVEL_COLOR: Record<Level, string> = { estable: 'hsl(172 58% 52%)', vigilar: 'hsl(46 92% 62%)', alerta: 'hsl(352 82% 60%)' };
 export const LEVEL_LABEL: Record<Level, string> = { estable: 'Stable', vigilar: 'Watch', alerta: 'Alert' };

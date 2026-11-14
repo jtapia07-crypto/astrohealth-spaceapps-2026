@@ -28,3 +28,9 @@ La navegación de salud tiene cinco opciones horizontales, con **Biometric data*
 **Why:** La persona usuaria solicitó esta separación de información y aclaró que la primera opción debe ser datos biométricos y que el cuerpo «solo salga ahí, no en las otras opciones».
 
 **How to apply:** No volver a mostrar de forma permanente los paneles de información privada o detallada, y no mezclar registros entre tripulantes ni presentar los métodos registrados como recomendaciones médicas probadas.
+
+En Human, Biometric data debe mostrar arriba del cuerpo avisos de los indicadores amarillos o rojos, explicando qué está mal. Cada aviso abre la ficha del órgano o sistema afectado con valores numéricos, estrategias y recomendaciones.
+
+**Why:** La persona usuaria pidió advertencias clicables antes del cuerpo y dio como ejemplo la presión alta.
+
+**How to apply:** Usar los mismos informes para avisos, colores, diagrama y fichas; distinguir valores basales guardados y datos simulados de mediciones reales, sin diagnosticar.
