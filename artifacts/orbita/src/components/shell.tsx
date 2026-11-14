@@ -5,10 +5,10 @@ import { useStore } from '@/lib/store';
 import { deriveAlerts } from '@/lib/alerts';
 
 const NAV = [
-  { href: '/', label: 'Humano', icon: Activity },
-  { href: '/nave', label: 'Nave', icon: Rocket },
-  { href: '/critico', label: 'Crítico', icon: Siren },
-  { href: '/jardin', label: 'Jardín', icon: Sprout },
+  { href: '/', label: 'Human', tid: 'humano', icon: Activity },
+  { href: '/nave', label: 'Ship', tid: 'nave', icon: Rocket },
+  { href: '/critico', label: 'Critical', tid: 'critico', icon: Siren },
+  { href: '/jardin', label: 'Garden', tid: 'jardin', icon: Sprout },
 ];
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -25,23 +25,23 @@ export function Shell({ children }: { children: ReactNode }) {
             <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden><circle cx="16" cy="16" r="6" fill="hsl(22 95% 58%)" /><ellipse cx="16" cy="16" rx="14" ry="5.5" fill="none" stroke="hsl(172 58% 52%)" strokeWidth="1.5" transform="rotate(-24 16 16)" /></svg>
             <span className="font-display text-lg font-bold tracking-[0.25em]">ÓRBITA</span>
           </Link>
-          <span className="hidden rounded-full border border-primary/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-primary sm:inline">Simulador educativo</span>
+          <span className="hidden rounded-full border border-primary/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-primary sm:inline">Educational simulator</span>
           <span className="ml-auto hidden font-mono text-xs text-muted-foreground md:inline">{mission.callsign} · {selected.name}</span>
-          <nav className="ml-auto flex gap-1 md:ml-4">
-            <Link href="/perfil" data-testid="link-perfil" className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition ${loc === '/perfil' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}><UserRound className="h-4 w-4" />Perfil</Link>
-            <Link href="/mision" data-testid="link-mision" className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition ${loc === '/mision' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}><Globe2 className="h-4 w-4" />Misión</Link>
+          <nav aria-label="Secondary" className="ml-auto flex gap-1 md:ml-4">
+            <Link href="/perfil" data-testid="link-perfil" className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition ${loc === '/perfil' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}><UserRound className="h-4 w-4" />Profile</Link>
+            <Link href="/mision" data-testid="link-mision" className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition ${loc === '/mision' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}><Globe2 className="h-4 w-4" />Mission</Link>
           </nav>
         </div>
       </header>
       <main className="relative z-10 mx-auto max-w-7xl px-4 pb-36 pt-6">{children}</main>
       <footer className="relative z-10 mx-auto max-w-7xl px-4 pb-32 text-center font-mono text-[11px] leading-relaxed text-muted-foreground">
-        Telemetría de demostración simulada. Sin diagnóstico médico real ni control de ninguna nave. Los datos se guardan solo en este dispositivo (localStorage); usa datos ficticios.
+        Simulated demo telemetry. No real medical diagnosis and no control of any spacecraft. Data is stored only on this device (localStorage); use fictional data.
       </footer>
-      <nav className="fixed inset-x-0 bottom-3 z-40 mx-auto flex w-[min(30rem,calc(100%-1.5rem))] justify-between rounded-2xl border border-border bg-card/90 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-md">
-        {NAV.map(({ href, label, icon: Icon }) => {
+      <nav aria-label="Main sections" className="fixed inset-x-0 bottom-3 z-40 mx-auto flex w-[min(30rem,calc(100%-1.5rem))] justify-between rounded-2xl border border-border bg-card/90 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-md">
+        {NAV.map(({ href, label, tid, icon: Icon }) => {
           const on = loc === href;
           return (
-            <Link key={href} href={href} data-testid={`nav-${label.toLowerCase()}`} className={`relative flex flex-1 flex-col items-center gap-0.5 rounded-xl py-2 text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ${on ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+            <Link key={href} href={href} data-testid={`nav-${tid}`} aria-current={on ? 'page' : undefined} className={`relative flex flex-1 flex-col items-center gap-0.5 rounded-xl py-2 text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ${on ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
               <Icon className="h-5 w-5" />{label}
               {href === '/critico' && active.length > 0 && <span data-testid="badge-alerts" className={`absolute right-3 top-1 grid h-4 min-w-4 place-items-center rounded-full px-1 font-mono text-[10px] ${urgent ? 'bg-destructive text-destructive-foreground' : 'bg-chart-3 text-background'}`}>{active.length}</span>}
             </Link>
@@ -64,6 +64,6 @@ export function PageHead({ kicker, title, children }: { kicker: string; title: s
   );
 }
 
-export function DemoTag({ text = 'Datos simulados' }: { text?: string }) {
+export function DemoTag({ text = 'Simulated data' }: { text?: string }) {
   return <span className="rounded border border-chart-3/50 bg-chart-3/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-chart-3">{text}</span>;
 }

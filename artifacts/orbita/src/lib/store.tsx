@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { AlertState, DailyLog, Mission, Profile, Ship } from './types';
-import { DEFAULT_MISSION, DEFAULT_SHIP, DEMO_CREW, blankProfile, seedLogs } from './defaults';
+import { DEFAULT_MISSION, DEFAULT_SHIP, DEMO_CREW, blankProfile, migrateLogs, migrateMission, migrateProfiles, seedLogs } from './defaults';
 import { load, save, wipeAll } from './storage';
 
 interface Store {
@@ -15,11 +15,11 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [crew, setCrew] = useState<Profile[]>(() => load('crew', DEMO_CREW));
+  const [crew, setCrew] = useState<Profile[]>(() => migrateProfiles(load('crew', DEMO_CREW)));
   const [selectedId, setSelectedId] = useState<string>(() => load('selected', DEMO_CREW[0].id));
-  const [logs, setLogs] = useState<DailyLog[]>(() => load('logs', seedLogs()));
+  const [logs, setLogs] = useState<DailyLog[]>(() => migrateLogs(load('logs', seedLogs())));
   const [ship, setShip] = useState<Ship>(() => load('ship', DEFAULT_SHIP));
-  const [mission, setMission] = useState<Mission>(() => load('mission', DEFAULT_MISSION()));
+  const [mission, setMission] = useState<Mission>(() => migrateMission(load('mission', DEFAULT_MISSION())));
   const [alerts, setAlerts] = useState<Record<string, AlertState>>(() => load('alerts', {}));
   useEffect(() => save('crew', crew), [crew]);
   useEffect(() => save('selected', selectedId), [selectedId]);
@@ -46,4 +46,4 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [crew, selectedId, logs, ship, mission, alerts]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
-export function useStore() { const s = useContext(Ctx); if (!s) throw new Error('StoreProvider ausente'); return s; }
+export function useStore() { const s = useContext(Ctx); if (!s) throw new Error('StoreProvider missing'); return s; }

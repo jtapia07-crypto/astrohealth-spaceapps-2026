@@ -1,45 +1,45 @@
 /** Educational references, not operational flight or medical limits. */
 export const NASA_REFERENCES = [
   {
-    title: 'Apollo 11 · misión histórica',
+    title: 'Apollo 11 · historic mission',
     url: 'https://www.nasa.gov/history/apollo-11-mission-overview/',
-    summary: 'El vuelo tripulado del 16 al 24 de julio de 1969 duró 8 días, 3 horas, 18 minutos y 35 segundos. La inserción en órbita lunar ocurrió aproximadamente a las 76 horas del despegue.',
+    summary: 'The crewed flight from July 16 to 24, 1969 lasted 8 days, 3 hours, 18 minutes and 35 seconds. Lunar orbit insertion occurred roughly 76 hours after launch.',
   },
   {
-    title: 'El cuerpo humano en el espacio',
+    title: 'The human body in space',
     url: 'https://www.nasa.gov/humans-in-space/the-human-body-in-space/',
-    summary: 'NASA describe cambios musculares, óseos, cardiovasculares y de distribución de fluidos en microgravedad. También estudia sueño, aislamiento, ejercicio y jardines espaciales. No son diagnósticos individuales.',
+    summary: 'NASA describes muscle, bone, cardiovascular and fluid distribution changes in microgravity, including fluid shifts linked to vision changes. It also studies sleep, isolation, exercise and space gardens. These are not individual diagnoses.',
   },
   {
-    title: 'Los cinco riesgos del vuelo espacial',
+    title: 'The five hazards of human spaceflight',
     url: 'https://www.nasa.gov/hrp/hazards/',
-    summary: 'Radiación, aislamiento y confinamiento, distancia de la Tierra, cambios de gravedad y ambientes cerrados u hostiles. Los viajes tripulados a Marte se estudian como misiones futuras, no como vuelos ya realizados.',
+    summary: 'Radiation, isolation and confinement, distance from Earth, gravity fields, and hostile or closed environments. Crewed trips to Mars are studied as future missions, not flights already flown.',
   },
 ] as const;
 
 export const MISSION_FACTS = {
   iss: {
-    name: 'Órbita terrestre · ISS',
-    kind: 'Experiencia tripulada real',
-    distance: 'Órbita baja; cientos de kilómetros de altitud',
-    gravity: 'Microgravedad durante la caída libre orbital',
-    duration: 'Referencia: estancias de unos 6 meses; duración variable',
-    note: 'La gravedad no desaparece en órbita: la nave y su tripulación están en caída libre. Se controlan el ejercicio, el sueño, la calidad del aire y la exposición a radiación. No se recibe telemetría de la ISS en esta aplicación.',
+    name: 'Earth orbit · ISS',
+    kind: 'Real crewed experience',
+    distance: 'Low orbit; a few hundred kilometers of altitude',
+    gravity: 'Microgravity during orbital free fall',
+    duration: 'Reference: stays of about 6 months; duration varies',
+    note: 'Gravity does not disappear in orbit: the station and its crew are in free fall. Exercise, sleep, air quality and radiation exposure are monitored. This app receives no ISS telemetry.',
   },
   moon: {
-    name: 'Luna · referencia Apollo 11',
-    kind: 'Misión histórica · 1969',
-    distance: 'Trayecto de Apollo 11: unas 76 h hasta órbita lunar',
-    gravity: 'Microgravedad en tránsito; gravedad parcial en superficie',
+    name: 'Moon · Apollo 11 reference',
+    kind: 'Historic mission · 1969',
+    distance: 'Apollo 11 transit: about 76 h to lunar orbit',
+    gravity: 'Microgravity in transit; partial gravity on the surface',
     duration: 'Apollo 11: 8 d, 3 h, 18 min, 35 s',
-    note: 'Neil Armstrong, Buzz Aldrin y Michael Collins viajaron del 16 al 24 de julio de 1969. Armstrong y Aldrin descendieron a la superficie; Collins permaneció en órbita. Una misión simulada distinta no reproduce automáticamente su trayectoria ni sus condiciones.',
+    note: 'Neil Armstrong, Buzz Aldrin and Michael Collins flew from July 16 to 24, 1969. Armstrong and Aldrin descended to the surface; Collins stayed in orbit. A different simulated mission does not automatically reproduce their trajectory or conditions.',
   },
   mars: {
-    name: 'Marte · escenario futuro',
-    kind: 'Hipotético · sin vuelos humanos realizados',
-    distance: 'Distancia variable; NASA cita un promedio de 140 millones de millas',
-    gravity: 'Aproximadamente 3/8 de la terrestre en superficie',
-    duration: 'Planificación de referencia: del orden de 3 años, ida y vuelta',
-    note: 'Ninguna persona ha viajado a Marte. NASA estudia traslados de unos 6 meses y comunicaciones que pueden demorarse unos 20 minutos en un sentido. Son referencias educativas dependientes de la trayectoria, no una predicción de vuelo ni parámetros certificados.',
+    name: 'Mars · future scenario',
+    kind: 'Hypothetical · no human flights yet',
+    distance: 'Variable distance; NASA cites an average of 140 million miles',
+    gravity: 'About 3/8 of Earth gravity on the surface',
+    duration: 'Reference planning: on the order of 3 years round trip',
+    note: 'No person has traveled to Mars. NASA studies transits of about 6 months and communications that can take about 20 minutes one way. These are trajectory-dependent educational references, not a flight prediction or certified parameters.',
   },
 } as const;

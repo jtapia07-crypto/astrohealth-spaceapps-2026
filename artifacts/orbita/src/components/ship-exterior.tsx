@@ -6,7 +6,7 @@ export function ShipExterior({ ship, onPart, onEnter, active }: { ship: Ship; on
   const ring = (p: PartId) => (active === p ? 'hsl(22 95% 62%)' : C[ship[p]]);
   const flameOn = ship.thrusters !== 'falla';
   return (
-    <svg viewBox="0 0 640 300" className="h-full w-full" role="img" aria-label="Exterior de la nave">
+    <svg viewBox="0 0 640 300" className="h-full w-full" role="img" aria-label="Spacecraft exterior">
       <circle cx="560" cy="250" r="140" fill="hsl(210 50% 30% / .35)" /><circle cx="560" cy="250" r="140" fill="none" stroke="hsl(195 70% 60% / .25)" strokeWidth="6" />
       <g onClick={() => onPart('thrusters')} className="cursor-pointer" data-testid="part-thrusters">
         {flameOn && [130, 170].map((y) => <path key={y} className="flame" d={`M118 ${y - 9} L${ship.thrusters === 'degradado' ? 82 : 52} ${y} L118 ${y + 9} Z`} fill="hsl(22 95% 58% / .85)" />)}
@@ -24,8 +24,8 @@ export function ShipExterior({ ship, onPart, onEnter, active }: { ship: Ship; on
       </g>
       <g onClick={(e) => { e.stopPropagation(); onEnter(); }} className="cursor-pointer" data-testid="button-enter-ship">
         <rect x="236" y="124" width="128" height="52" rx="10" fill="hsl(22 95% 58%)" />
-        <text x="300" y="148" textAnchor="middle" fontFamily="Chakra Petch" fontWeight="700" fontSize="13" fill="hsl(226 45% 7%)" letterSpacing="1.5">ENTRAR</text>
-        <text x="300" y="164" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill="hsl(226 45% 12%)">ver interior</text>
+        <text x="300" y="148" textAnchor="middle" fontFamily="Chakra Petch" fontWeight="700" fontSize="13" fill="hsl(226 45% 7%)" letterSpacing="1.5">ENTER</text>
+        <text x="300" y="164" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill="hsl(226 45% 12%)">view interior</text>
       </g>
       <g onClick={() => onPart('windows')} className="cursor-pointer" data-testid="part-windows">
         {[436, 462].map((x) => <circle key={x} cx={x} cy="150" r="9" fill={ship.windows === 'falla' ? 'hsl(352 60% 30%)' : 'hsl(195 75% 55%)'} stroke={ring('windows')} strokeWidth="3" />)}

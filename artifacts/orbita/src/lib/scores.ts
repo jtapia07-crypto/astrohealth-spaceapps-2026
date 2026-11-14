@@ -23,12 +23,12 @@ export function wellness(logs: DailyLog[], sleepGoal: number): Wellness | null {
   const ex = clamp((avg((l) => l.exercise) / 120) * 100);
   const social = clamp(avg((l) => (l.social ? 100 : 30)));
   const parts = [
-    { label: 'Sueño', value: sleep, weight: 0.25, detail: `${avg((l) => l.sleepHours).toFixed(1)} h promedio` },
-    { label: 'Hidratación', value: hyd, weight: 0.15, detail: `${avg((l) => l.hydration).toFixed(1)} L/día` },
-    { label: 'Ánimo', value: mood, weight: 0.2, detail: `${avg((l) => l.mood).toFixed(1)} / 5` },
-    { label: 'Calma', value: calm, weight: 0.15, detail: `estrés ${avg((l) => l.stress).toFixed(1)} / 5` },
-    { label: 'Ejercicio', value: ex, weight: 0.15, detail: `${Math.round(avg((l) => l.exercise))} min/día` },
-    { label: 'Contacto social', value: social, weight: 0.1, detail: `${recent.filter((l) => l.social).length} de ${recent.length} días` },
+    { label: 'Sleep', value: sleep, weight: 0.25, detail: `${avg((l) => l.sleepHours).toFixed(1)} h average` },
+    { label: 'Hydration', value: hyd, weight: 0.15, detail: `${avg((l) => l.hydration).toFixed(1)} L/day` },
+    { label: 'Mood', value: mood, weight: 0.2, detail: `${avg((l) => l.mood).toFixed(1)} / 5` },
+    { label: 'Calm', value: calm, weight: 0.15, detail: `stress ${avg((l) => l.stress).toFixed(1)} / 5` },
+    { label: 'Exercise', value: ex, weight: 0.15, detail: `${Math.round(avg((l) => l.exercise))} min/day` },
+    { label: 'Social contact', value: social, weight: 0.1, detail: `${recent.filter((l) => l.social).length} of ${recent.length} days` },
   ];
   return { score: clamp(parts.reduce((s, p) => s + p.value * p.weight, 0)), parts, days: recent.length };
 }

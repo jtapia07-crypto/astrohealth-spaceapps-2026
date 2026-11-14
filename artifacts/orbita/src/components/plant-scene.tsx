@@ -2,6 +2,9 @@ import type { Climate, PlantType } from '@/lib/types';
 import type { Weather } from '@/lib/scores';
 
 const SKY: Record<Weather, [string, string]> = { soleado: ['hsl(200 70% 62%)', 'hsl(40 85% 80%)'], nublado: ['hsl(215 20% 45%)', 'hsl(215 18% 68%)'], tormenta: ['hsl(232 35% 14%)', 'hsl(240 22% 30%)'] };
+const PLANT_EN: Record<PlantType, string> = { helecho: 'Fern', girasol: 'Sunflower', suculenta: 'Succulent', bonsai: 'Bonsai' };
+const CLIMATE_EN: Record<Climate, string> = { bosque: 'temperate forest', desierto: 'desert', tropical: 'tropical', tundra: 'tundra' };
+const WEATHER_EN: Record<Weather, string> = { soleado: 'sunny', nublado: 'cloudy', tormenta: 'stormy' };
 const GROUND: Record<Climate, string> = { bosque: 'hsl(140 30% 24%)', desierto: 'hsl(32 55% 52%)', tropical: 'hsl(150 45% 30%)', tundra: 'hsl(200 20% 82%)' };
 
 export function PlantScene({ plant, climate, weather, stage, health, empty }: { plant: PlantType; climate: Climate; weather: Weather; stage: number; health: number; empty: boolean }) {
@@ -11,7 +14,7 @@ export function PlantScene({ plant, climate, weather, stage, health, empty }: { 
   const h = empty ? 14 : 40 + stage * 26;
   const leaves = empty ? 0 : 1 + stage;
   return (
-    <svg viewBox="0 0 400 320" className="h-full w-full" role="img" aria-label={`Planta ${plant} en clima ${weather}`}>
+    <svg viewBox="0 0 400 320" className="h-full w-full" role="img" aria-label={`${PLANT_EN[plant]} plant in a ${CLIMATE_EN[climate]} setting, ${WEATHER_EN[weather]} weather`}>
       <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={top} /><stop offset="1" stopColor={bottom} /></linearGradient></defs>
       <rect width="400" height="320" fill="url(#sky)" />
       {weather === 'soleado' && <g><circle cx="320" cy="62" r="30" fill="hsl(44 95% 62%)" /><circle cx="320" cy="62" r="44" fill="hsl(44 95% 62% / .2)" className="hotspot-ring" /></g>}
