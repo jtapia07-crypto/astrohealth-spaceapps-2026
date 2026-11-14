@@ -17,9 +17,9 @@ El mapa humano debe incluir los ojos y parecerse a una ilustración anatómica c
 
 **How to apply:** Escribir en inglés todos los textos nuevos de la aplicación, incluidos alertas, formularios, recomendaciones y metadatos. Mantener los puntos anatómicos interactivos al mejorar la ilustración.
 
-La nave conserva un acabado realista. Para órganos y sistemas, la preferencia más reciente sustituye las imágenes realistas por dibujos minimalistas de trazos neón **#33C1AE**, cuyo brillo debe palpitar. Las fichas mantienen la ilustración a la derecha en escritorio y las transiciones al interactuar.
+La nave conserva un acabado realista. **Solo dentro de las fichas que se abren al seleccionar un órgano**, las imágenes se sustituyen por dibujos minimalistas de trazos neón **#33C1AE**, cuyo brillo debe palpitar. El mapa corporal inicial conserva su estilo anatómico coloreado, no neón, e incluye un músculo y un hueso representativos en sus ubicaciones. Las fichas mantienen la ilustración a la derecha en escritorio y las transiciones al interactuar.
 
-**Why:** La persona usuaria pidió explícitamente reemplazar las imágenes de órganos por dibujos minimalistas neón con color #33C1AE y trazos palpitantes; no pidió cambiar la nave.
+**Why:** La persona usuaria aclaró «en la parte inicial no quería que se cambiara este estilo, solo al abrir cada órgano» y pidió agregar un músculo y un hueso en el mapa inicial. El neón no debe extenderse al cuerpo principal ni a la nave.
 
 **How to apply:** Conservar el idioma inglés y las funciones existentes mientras se mejora la profundidad visual. Las animaciones son ilustrativas, no mediciones fisiológicas reales.
 

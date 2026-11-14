@@ -93,6 +93,12 @@ export function BodyFigure({ reports, active, onSelect }: { reports: HotspotRepo
           <stop offset=".5" stopColor="hsl(140 50% 70% / .8)" />
           <stop offset="1" stopColor="hsl(150 45% 50% / .6)" />
         </linearGradient>
+        <linearGradient id="bf-muscle" x1="0" x2="1">
+          <stop offset="0" stopColor="#873645" /><stop offset=".48" stopColor="#d87978" /><stop offset="1" stopColor="#98404b" />
+        </linearGradient>
+        <linearGradient id="bf-bone" x1="0" x2="1">
+          <stop offset="0" stopColor="#a9b5bc" /><stop offset=".45" stopColor="#eee7cf" /><stop offset="1" stopColor="#a5b1b5" />
+        </linearGradient>
         <linearGradient id="bf-rim" x1="0" x2="1"><stop offset="0" stopColor="hsl(226 50% 6% / .45)" /><stop offset=".22" stopColor="hsl(226 50% 6% / 0)" /><stop offset=".78" stopColor="hsl(226 50% 6% / 0)" /><stop offset="1" stopColor="hsl(226 50% 6% / .5)" /></linearGradient>
         <clipPath id="bf-clip"><path d={BODY} /><path d={HEAD} /></clipPath>
       </defs>
@@ -113,44 +119,72 @@ export function BodyFigure({ reports, active, onSelect }: { reports: HotspotRepo
         <path d="M81 39 Q80.6 43 82.5 46 M119 39 Q119.4 43 117.5 46" />
       </g>
 
-      <g clipPath="url(#bf-clip)" pointerEvents="none" fill="none" stroke="#33C1AE" strokeLinecap="round" strokeLinejoin="round" className="neon-organs">
+      <g clipPath="url(#bf-clip)" pointerEvents="none" fill="none" strokeLinecap="round" strokeLinejoin="round">
         {/* Muscular relief, faint */}
-        <g strokeOpacity=".16" strokeWidth=".7">
+        <g stroke="hsl(195 55% 78%)" strokeOpacity=".16" strokeWidth=".7">
           <path d="M70 100 Q84 94 97 101 M103 101 Q116 94 130 100 M52 108 Q58 114 56 128 M148 108 Q142 114 144 128" />
           <path d="M72 241 Q78 275 80 307 M128 241 Q122 275 120 307 M77 341 Q81 365 80 393 M123 341 Q119 365 120 393" />
         </g>
-        {/* Vessels as fine neon traces */}
-        <g strokeOpacity=".32" strokeWidth=".6">
+        {/* Arteries and veins retain the colored anatomical map style. */}
+        <g stroke="hsl(355 75% 58% / .42)" strokeWidth="1.1">
           <path d="M104 128 Q103 170 102 226 Q101 236 96 244 Q90 262 86 300 Q83 330 82 370 Q81 395 80 420" />
           <path d="M102 226 Q104 236 107 244 Q111 262 114 300 Q116 330 118 370 Q119 395 120 420" />
           <path d="M101 112 Q90 98 72 96 Q58 100 52 116 Q47 140 44 160 Q40 185 36 210 Q31 230 29 250" />
           <path d="M107 108 Q118 98 130 96 Q144 100 148 116 Q153 140 156 160 Q160 185 164 210 Q169 230 171 250" />
         </g>
-        <g className="neon-pulse" strokeWidth=".9">
+        <g stroke="hsl(215 75% 64% / .38)" strokeWidth="1">
+          <path d="M98 130 Q98 170 99 226 Q98 236 93 245 Q87 265 83 300 Q80 330 79 370 Q78 395 77 420 M99 226 Q102 236 104 245 Q109 265 112 300 Q114 330 116 370 Q117 395 117 420" />
+          <path d="M97 114 Q86 102 70 101 Q56 106 50 124 Q45 146 42 166 Q38 190 33 214 M109 112 Q118 102 132 101 Q146 106 150 124 Q155 146 158 166 Q162 190 167 214" />
+        </g>
+        <g strokeWidth=".9">
           {/* Trachea + bronchi */}
-          <path d="M97.5 64 L97.5 102 M102.5 64 L102.5 102" />
-          <path d="M100 102 Q96 106 90 110 M100 102 Q104 106 110 110 M90 110 Q82 118 76 136 M110 110 Q118 118 124 136" strokeOpacity=".7" strokeWidth=".7" />
+          <path d="M96.6 63 Q100 60 103.4 63 L103 70 Q100 72 97 70 Z" fill="url(#bf-airway)" opacity=".75" />
+          <rect x="97.4" y="70" width="5.2" height="32" rx="2.4" fill="url(#bf-airway)" opacity=".75" />
+          <g stroke="hsl(140 55% 82% / .55)" strokeWidth=".6">
+            {[73, 76, 79, 82, 85, 88, 91, 94, 97, 100].map((y) => <line key={y} x1="97.6" x2="102.4" y1={y} y2={y} />)}
+          </g>
           {/* Lungs */}
-          <path d="M96 100 Q90 92 82 94 Q70 100 66 118 Q63 136 65 152 Q66 160 74 159 Q84 156 94 156 Q98 153 97 140 Q97 118 96 100 Z" />
-          <path d="M104 100 Q110 92 118 94 Q130 100 134 118 Q137 136 135 152 Q134 160 126 159 Q120 157 116 154 Q118 146 114 140 Q110 132 104 132 Q103 118 104 100 Z" />
+          <path d="M96 100 Q90 92 82 94 Q70 100 66 118 Q63 136 65 152 Q66 160 74 159 Q84 156 94 156 Q98 153 97 140 Q97 118 96 100 Z" fill="url(#bf-lung)" stroke="hsl(205 80% 78% / .55)" strokeWidth=".8" />
+          <path d="M104 100 Q110 92 118 94 Q130 100 134 118 Q137 136 135 152 Q134 160 126 159 Q120 157 116 154 Q118 146 114 140 Q110 132 104 132 Q103 118 104 100 Z" fill="url(#bf-lung)" stroke="hsl(205 80% 78% / .55)" strokeWidth=".8" />
+          <path d="M100 102 Q96 106 90 110 M100 102 Q104 106 110 110" stroke="url(#bf-airway)" strokeWidth="2.4" />
+          <g stroke="hsl(355 70% 62% / .65)" strokeWidth=".7">
+            <path d="M90 110 Q84 114 80 122 Q76 130 74 142 M84 116 Q78 116 72 120 M80 122 Q84 130 85 140 M76 130 Q71 134 69 140 M74 142 Q72 148 72 152 M85 140 Q88 146 90 150 M80 122 Q76 118 74 112 M90 110 Q88 104 84 100" />
+            <path d="M110 110 Q116 114 120 122 Q124 130 126 142 M116 116 Q122 116 128 120 M120 122 Q118 130 119 138 M124 130 Q129 134 131 140 M126 142 Q128 148 128 152 M120 122 Q124 118 126 112 M110 110 Q112 104 116 100" />
+          </g>
           {/* Heart */}
-          <path d="M103 110 Q103 100 108 99 Q114 99 113 106" strokeWidth="1.1" />
-          <path d="M99.5 115 Q104 108 111 110 Q120 112 121 122 Q122 132 115 140 Q109 146 104 148 Q100 142 97 134 Q94 124 99.5 115 Z" strokeWidth="1.2" />
-          <path d="M107 114 Q106 128 104 146" strokeOpacity=".6" strokeWidth=".6" />
+          <path d="M103 110 Q103 100 108 99 Q114 99 113 106" stroke="hsl(354 72% 52%)" strokeWidth="3.2" />
+          <path d="M100 112 Q99 104 98 100" stroke="hsl(215 65% 55%)" strokeWidth="2.6" />
+          <path d="M99.5 115 Q104 108 111 110 Q120 112 121 122 Q122 132 115 140 Q109 146 104 148 Q100 142 97 134 Q94 124 99.5 115 Z" fill="url(#bf-heart)" stroke="hsl(350 75% 30% / .6)" strokeWidth=".6" />
+          <path d="M107 114 Q106 128 104 146 M111 118 Q116 124 115 134" stroke="hsl(355 90% 82% / .45)" strokeWidth=".6" />
           {/* Diaphragm, liver, stomach, kidneys */}
-          <path d="M66 160 Q100 150 134 160" strokeOpacity=".35" strokeWidth=".6" />
-          <path d="M68 164 Q84 156 104 160 Q110 162 108 166 Q102 172 94 178 Q84 184 74 182 Q66 178 68 164 Z" />
-          <path d="M108 160 Q114 155 121 158 Q130 163 129 175 Q128 186 119 190 Q110 193 102 189 Q99 186 102 184 Q110 184 114 178 Q117 172 112 166 Q108 164 108 160 Z" />
-          <path d="M76 190 Q72 196 74 203 Q77 208 81 205 Q79 198 81 192 Q79 188 76 190 Z M124 190 Q128 196 126 203 Q123 208 119 205 Q121 198 119 192 Q121 188 124 190 Z" strokeOpacity=".7" />
+          <path d="M66 160 Q100 150 134 160" stroke="hsl(30 50% 75% / .18)" strokeWidth="1" />
+          <path d="M68 164 Q84 156 104 160 Q110 162 108 166 Q102 172 94 178 Q84 184 74 182 Q66 178 68 164 Z" fill="url(#bf-liver)" stroke="hsl(355 70% 30% / .5)" strokeWidth=".6" />
+          <path d="M86 162 Q88 170 84 180" stroke="hsl(10 70% 75% / .3)" strokeWidth=".6" />
+          <path d="M108 160 Q114 155 121 158 Q130 163 129 175 Q128 186 119 190 Q110 193 102 189 Q99 186 102 184 Q110 184 114 178 Q117 172 112 166 Q108 164 108 160 Z" fill="url(#bf-stomach)" stroke="hsl(110 45% 28% / .55)" strokeWidth=".6" />
+          <path d="M112 164 Q122 166 122 176 Q120 184 112 186" stroke="hsl(90 50% 80% / .3)" strokeWidth=".6" />
+          <path d="M76 190 Q72 196 74 203 Q77 208 81 205 Q79 198 81 192 Q79 188 76 190 Z M124 190 Q128 196 126 203 Q123 208 119 205 Q121 198 119 192 Q121 188 124 190 Z" fill="url(#bf-kidney)" opacity=".75" />
           {/* Intestines */}
-          <path d="M80 240 Q76 228 77 212 Q77 198 84 195 Q100 192 116 195 Q123 198 123 212 Q124 228 120 240 Q116 247 108 246 Q102 246 101 252 L101 262" strokeWidth="1.1" />
-          <g strokeOpacity=".7" strokeWidth=".7">
+          <path d="M80 240 Q76 228 77 212 Q77 198 84 195 Q100 192 116 195 Q123 198 123 212 Q124 228 120 240 Q116 247 108 246 Q102 246 101 252 L101 258" stroke="hsl(120 42% 52% / .62)" strokeWidth="6.5" />
+          <path d="M80 240 Q76 228 77 212 Q77 198 84 195 Q100 192 116 195 Q123 198 123 212 Q124 228 120 240 Q116 247 108 246 Q102 246 101 252 L101 258" stroke="hsl(110 45% 30% / .45)" strokeWidth="6.5" strokeDasharray=".8 3.2" />
+          <path d="M101 258 Q101 262 100.5 264" stroke="hsl(355 65% 60% / .7)" strokeWidth="4" />
+          <g stroke="hsl(212 70% 66% / .62)" strokeWidth="2.2">
             <path d="M86 204 Q90 200 94 204 Q98 208 102 204 Q106 200 110 204 Q114 208 116 204" />
             <path d="M116 212 Q112 216 108 212 Q104 208 100 212 Q96 216 92 212 Q88 208 85 212" />
             <path d="M85 220 Q89 224 93 220 Q97 216 101 220 Q105 224 109 220 Q113 216 116 220" />
             <path d="M116 228 Q112 232 108 228 Q104 224 100 228 Q96 232 92 228 Q88 224 86 228" />
             <path d="M88 236 Q92 240 96 236 Q100 232 104 236 Q108 240 112 236" />
           </g>
+        </g>
+        {/* Representative quadriceps at the muscle point on the thigh. */}
+        <g data-testid="body-muscle-illustration">
+          <path d="M121 256 Q113 266 114 283 Q115 298 119 311 L122 322 L126 311 Q132 294 130 277 Q129 264 125 256 Z" fill="url(#bf-muscle)" stroke="hsl(355 60% 75% / .65)" strokeWidth=".65" />
+          <path d="M121 259 Q117 280 121 311 M124 260 Q121 282 123 312 M127 266 Q126 287 124 308" stroke="hsl(12 70% 87% / .45)" strokeWidth=".6" />
+          <path d="M119 311 L122 324 L125 312" fill="hsl(35 30% 83% / .8)" stroke="hsl(35 30% 90% / .6)" strokeWidth=".5" />
+        </g>
+        {/* Representative tibia in the shin, aligned with the bones point. */}
+        <g data-testid="body-bone-illustration">
+          <path d="M76 332 Q73 328 77 326 Q80 324 82 328 Q85 325 88 328 Q91 332 86 335 L83 390 Q85 395 82 399 Q79 401 78 398 Q74 400 73 397 Q72 394 76 391 L79 336 Z" fill="url(#bf-bone)" stroke="hsl(40 30% 90% / .7)" strokeWidth=".65" />
+          <path d="M81 338 L78 389" stroke="hsl(40 40% 98% / .65)" strokeWidth=".8" />
         </g>
       </g>
 
