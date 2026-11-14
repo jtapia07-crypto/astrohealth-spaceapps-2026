@@ -34,3 +34,15 @@ En Human, Biometric data debe mostrar arriba del cuerpo avisos de los indicadore
 **Why:** La persona usuaria pidió advertencias clicables antes del cuerpo y dio como ejemplo la presión alta.
 
 **How to apply:** Usar los mismos informes para avisos, colores, diagrama y fichas; distinguir valores basales guardados y datos simulados de mediciones reales, sin diagnosticar.
+
+Symptoms y Notes / how I feel pertenecen a Human, debajo del diagrama en Biometric data, con botón Save, no al formulario Daily journal de Garden. El resto del diario permanece en Garden. Ambas vistas comparten el registro de cada fecha y tripulante, pero guardar una parte no debe sobrescribir los campos de la otra.
+
+**Why:** La persona usuaria pidió mover esa parte concreta del diario debajo del cuerpo humano, manteniendo el guardado.
+
+**How to apply:** Conservar datos anteriores y combinar los campos con la última versión guardada del día al persistir cada formulario.
+
+Critical deja de ser una sección de la navegación inferior: los eventos de salud se gestionan en Human y los de la nave en Ship. Ship también tiene historial de eventos. Human y Garden deben tener fondos espaciales con estrellas brillantes y galaxias, manteniendo legibilidad.
+
+**Why:** La persona usuaria pidió distribuir los eventos de Critical según su origen, agregar historial en Ship y reforzar la ambientación espacial.
+
+**How to apply:** Mantener causas, acciones, reconocimiento y resolución al redistribuir los eventos; el historial conserva las notas aunque desaparezca el disparador. La salud es por tripulante y la nave compartida.

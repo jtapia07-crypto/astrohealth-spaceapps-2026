@@ -3,12 +3,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import NotFound from '@/pages/not-found';
 import HealthPage from '@/pages/health';
 import PerfilPage from '@/pages/perfil';
 import NavePage from '@/pages/nave';
-import CriticoPage from '@/pages/critico';
 import JardinPage from '@/pages/jardin';
 import MisionPage from '@/pages/mision';
 import { Shell } from '@/components/shell';
@@ -24,7 +23,7 @@ function Router() {
           <Route path="/" component={HealthPage} />
           <Route path="/perfil" component={PerfilPage} />
           <Route path="/nave" component={NavePage} />
-          <Route path="/critico" component={CriticoPage} />
+          <Route path="/critico"><Redirect to="/" replace /></Route>
           <Route path="/jardin" component={JardinPage} />
           <Route path="/mision" component={MisionPage} />
           <Route component={NotFound} />

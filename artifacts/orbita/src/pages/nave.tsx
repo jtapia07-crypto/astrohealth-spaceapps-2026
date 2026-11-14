@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -8,6 +8,8 @@ import { useStore } from '@/lib/store';
 import { shipScore } from '@/lib/scores';
 import type { PartState, Ship } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { deriveAlerts } from '@/lib/alerts';
+import { ActiveEvents, EventHistoryList } from '@/components/events/event-center';
 import { usePageMeta } from '@/hooks/use-page-meta';
 
 type NumKey = 'o2' | 'co2' | 'pressure' | 'temp' | 'gravity' | 'humidity' | 'radiation' | 'water' | 'energy';
@@ -42,7 +44,10 @@ const stColor = (ok: boolean) => (ok ? 'text-accent' : 'text-destructive');
 
 export default function NavePage() {
   usePageMeta('Ship', 'Interactive exterior and interior systems of the simulated spacecraft with editable inputs.');
-  const { ship, setShip, resetShip } = useStore();
+  const { ship, setShip, resetShip, myLogs, selected, eventRecords } = useStore();
+  const [view, setView] = useState<'ship' | 'history'>('ship');
+  const shipAlerts = useMemo(() => deriveAlerts(ship, myLogs[0], selected).filter((a) => a.source === 'nave'), [ship, myLogs, selected]);
+  const shipRecords = eventRecords.filter((e) => e.source === 'nave');
   const { toast } = useToast();
   const [inside, setInside] = useState(false);
   const [part, setPart] = useState<PartId | null>('hull');
@@ -56,6 +61,9 @@ export default function NavePage() {
       <PageHead kicker={inside ? 'Interior · systems' : 'Exterior · space'} title={inside ? 'Inside the ship' : 'The ship'}>
         <div className="flex items-center gap-3"><DemoTag text="Simulated telemetry" /><div className="text-right"><div className="font-display text-3xl font-bold text-primary" data-testid="text-ship-score">{score}</div><div className="font-mono text-[10px] uppercase text-muted-foreground">illustrative status</div></div></div>
       </PageHead>
+      <div role="tablist" aria-label="Ship view" className="mb-5 inline-flex gap-1 rounded-xl border border-border bg-card/70 p-1">{([['ship', 'Ship'], ['history', `Historical records (${shipRecords.length})`]] as const).map(([v, l]) => <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)} data-testid={`tab-ship-${v}`} className={`rounded-lg px-4 py-2 text-sm transition ${view === v ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>{l}</button>)}</div>
+      {view === 'history' ? <section aria-label="Ship historical records"><EventHistoryList records={shipRecords} testid="list-ship-history" emptyText="No resolved ship events yet. Resolved events are saved here with their note." /></section> : <>
+      <section aria-label="Ship events" className="mb-5"><h2 className="font-display mb-2 text-lg">Ship events</h2><ActiveEvents alerts={shipAlerts} testid="list-ship-events" emptyText="No active ship events. Systems are within simulated ranges." /></section>
       <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-5">
           {!inside ? (
@@ -101,6 +109,7 @@ export default function NavePage() {
           ))}
         </aside>
       </div>
+      </>}
     </>
   );
 }

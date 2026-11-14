@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DemoTag, PageHead } from '@/components/shell';
 import { PlantScene } from '@/components/plant-scene';
+import { SpaceBackdrop } from '@/components/space-backdrop';
 import { LogForm } from '@/components/log-form';
 import { useStore } from '@/lib/store';
 import { growthStage, shipScore, weatherFor, wellness } from '@/lib/scores';
 import { shiftISO, todayISO } from '@/lib/defaults';
-import { SYMPTOMS } from '@/lib/health';
 import type { DailyLog } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { usePageMeta } from '@/hooks/use-page-meta';
@@ -20,7 +20,7 @@ const RANGE_LABEL: Record<Range, string> = { dia: 'Day', semana: 'Week', mes: 'M
 
 export default function JardinPage() {
   usePageMeta('Garden', 'A digital plant that grows with your wellbeing journal; the weather reflects the ship status.');
-  const { selected, myLogs, upsertLog, deleteLog, ship } = useStore();
+  const { selected, myLogs, saveWellbeingLog, deleteLog, ship } = useStore();
   const { toast } = useToast();
   const [editing, setEditing] = useState<DailyLog>(() => myLogs.find((l) => l.date === todayISO()) ?? blank(selected.id, todayISO()));
   const [range, setRange] = useState<Range>('semana');
@@ -40,12 +40,16 @@ export default function JardinPage() {
   const step = range === 'dia' ? 1 : range === 'semana' ? 7 : 30;
   const save = (l: DailyLog) => {
     const existed = myLogs.find((x) => x.date === l.date && x.id !== l.id);
-    upsertLog({ ...l, profileId: selected.id });
-    toast({ title: existed ? 'Log replaced' : 'Log saved', description: `${l.date} for ${selected.name}. The plant has been updated.` });
-    if (l.symptoms.some((s) => SYMPTOMS.find((x) => x.id === s)?.urgent)) toast({ title: 'Red-flag symptom logged', description: 'Check the Critical page and contact the flight surgeon.', variant: 'destructive' });
+    try {
+      saveWellbeingLog({ ...l, profileId: selected.id });
+      toast({ title: existed ? 'Log updated' : 'Log saved', description: `${l.date} for ${selected.name}. Symptoms and notes were kept. The plant has been updated.` });
+    } catch (e) {
+      toast({ title: 'Could not save on this device', description: e instanceof Error ? e.message : 'Local storage failed. Try again.', variant: 'destructive' });
+    }
   };
   return (
     <>
+      <SpaceBackdrop variant="garden" />
       <PageHead kicker={`${selected.name}'s garden`} title={selected.plantName || 'My plant'}><DemoTag text="Illustrative scores" /></PageHead>
       <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-4">
@@ -83,8 +87,8 @@ export default function JardinPage() {
           </li>)}</ul>}
       </section>
       <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
-        <AlertDialogContent className="bg-card"><AlertDialogHeader><AlertDialogTitle className="font-display">Delete log for {toDelete?.date}</AlertDialogTitle><AlertDialogDescription>This cannot be undone. The plant will be recalculated.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction className="bg-destructive text-destructive-foreground" data-testid="button-confirm-delete" onClick={() => { if (toDelete) { deleteLog(toDelete.id); toast({ title: 'Log deleted' }); if (editing.id === toDelete.id) setEditing(blank(selected.id, todayISO())); } }}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+        <AlertDialogContent className="bg-card"><AlertDialogHeader><AlertDialogTitle className="font-display">Delete log for {toDelete?.date}</AlertDialogTitle><AlertDialogDescription>This deletes the entire day for {selected.name}, including the symptoms and notes logged in Human. This cannot be undone. The plant will be recalculated.</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction className="bg-destructive text-destructive-foreground" data-testid="button-confirm-delete" onClick={() => { if (toDelete) { try { deleteLog(toDelete.id); } catch (e) { toast({ title: 'Could not delete on this device', description: e instanceof Error ? e.message : 'Local storage failed. Try again.', variant: 'destructive' }); return; } toast({ title: 'Day deleted', description: 'Journal, symptoms and notes removed.' }); if (editing.id === toDelete.id) setEditing(blank(selected.id, todayISO())); } }}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
       </AlertDialog>
     </>
   );

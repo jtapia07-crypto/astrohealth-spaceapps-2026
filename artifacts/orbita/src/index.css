@@ -520,3 +520,16 @@ body { background: radial-gradient(1200px 700px at 80% -10%, hsl(230 50% 16%), t
 .neon-pulse { filter: drop-shadow(0 0 1.5px #33C1AE); animation: neon-body 3.6s ease-in-out infinite; }
 @keyframes neon-body { 0%,100% { opacity: .75 } 50% { opacity: 1 } }
 .panel-reveal:not([hidden]) { animation: rise .4s cubic-bezier(.2,.7,.2,1) both; }
+
+/* Space backdrops (Human, Garden) */
+html { scroll-padding-bottom: 7rem; }
+button, input, textarea { scroll-margin-bottom: 7rem; }
+.space-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.space-bg .neb { position: absolute; border-radius: 9999px; filter: blur(60px); opacity: .45; animation: neb-float 40s ease-in-out infinite alternate; }
+.space-bg .glint { position: absolute; width: 3px; height: 3px; border-radius: 9999px; background: hsl(40 60% 96%); box-shadow: 0 0 6px 1px hsl(40 80% 90% / .7); animation: glint 4s ease-in-out infinite; }
+.space-bg .glint::before, .space-bg .glint::after { content: ''; position: absolute; left: 50%; top: 50%; background: hsl(40 60% 96% / .7); transform: translate(-50%, -50%); }
+.space-bg .glint::before { width: 18px; height: 1px; } .space-bg .glint::after { width: 1px; height: 18px; }
+.space-bg .band { position: absolute; inset: -20%; background: radial-gradient(ellipse at center, hsl(40 50% 90% / .08), transparent 60%); transform: rotate(-28deg) scaleY(.25); }
+@keyframes glint { 0%, 100% { opacity: .2; transform: scale(.6); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes neb-float { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(40px,-30px,0) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .space-bg .neb, .space-bg .glint { animation: none; } .space-bg .glint { opacity: .8; } }

@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'wouter';
-import { AlertOctagon, ArrowRight, HeartPulse, Info, ShieldAlert, Stethoscope } from 'lucide-react';
+import { AlertOctagon, HeartPulse, Info, ShieldAlert, Stethoscope } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { BodyFigure } from '@/components/body-figure';
 import { OrganVisual } from '@/components/medical/organ-visual';
@@ -9,11 +8,17 @@ import { DemoTag, PageHead } from '@/components/shell';
 import { useStore } from '@/lib/store';
 import { BodyNav, Collapse, CrewPanel, DetailPanel, HistoryPanel, ProfilePanel, type PanelId } from '@/components/health/body-nav';
 import { healthReports, LEVEL_COLOR, LEVEL_LABEL, type HotspotId } from '@/lib/health';
+import { deriveAlerts } from '@/lib/alerts';
+import { ActiveEvents, EventHistoryList } from '@/components/events/event-center';
+import { SymptomForm } from '@/components/health/symptom-form';
+import { SpaceBackdrop } from '@/components/space-backdrop';
 import { usePageMeta } from '@/hooks/use-page-meta';
 
 export default function HealthPage() {
   usePageMeta('Human', 'Illustrative health status of the selected astronaut on an interactive anatomical body map.');
-  const { crew, selected, selectId, ship, myLogs } = useStore();
+  const { crew, selected, selectId, ship, myLogs, eventRecords } = useStore();
+  const healthAlerts = useMemo(() => deriveAlerts(ship, myLogs[0], selected).filter((a) => a.source === 'salud'), [ship, myLogs, selected]);
+  const healthRecords = eventRecords.filter((e) => e.source === 'salud' && (e.profileId === selected.id || !e.profileId));
   const log = myLogs[0];
   const reports = useMemo(() => healthReports(selected, ship, log), [selected, ship, log]);
   const [open, setOpen] = useState<HotspotId | null>(null);
@@ -23,8 +28,9 @@ export default function HealthPage() {
   const overall = Math.round(reports.reduce((s, x) => s + x.score, 0) / reports.length);
   return (
     <>
+      <SpaceBackdrop variant="human" />
       <PageHead kicker="Body log · crew member" title="The body in orbit"><DemoTag text="Illustrative scores" /></PageHead>
-      {urgent && <Link href="/critico" data-testid="banner-urgent" className="rise mb-5 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/15 p-4 text-sm"><AlertOctagon className="h-6 w-6 shrink-0 text-destructive" /><span><b className="font-display tracking-wide">Urgent medical escalation.</b> A red-flag symptom was logged (chest pain, severe breathing difficulty or neurological deficit). Contact the flight surgeon immediately.</span><ArrowRight className="ml-auto h-4 w-4" /></Link>}
+      {urgent && <a href="#health-events" onClick={(event) => { event.preventDefault(); setPanel('biometric'); requestAnimationFrame(() => document.getElementById('health-events')?.scrollIntoView({ block: 'start' })); }} data-testid="banner-urgent" className="rise mb-5 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/15 p-4 text-sm"><AlertOctagon className="h-6 w-6 shrink-0 text-destructive" /><span><b className="font-display tracking-wide">Urgent medical escalation.</b> A red-flag symptom was logged (chest pain, severe breathing difficulty or neurological deficit). Contact the flight surgeon immediately.</span></a>}
       <div className="grid min-w-0 grid-cols-1 items-start gap-6 md:grid-cols-[15rem_minmax(0,1fr)]">
       <aside aria-label="Crew selection" className="min-w-0 md:sticky md:top-24">
         <p className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Crew selection</p>
@@ -42,8 +48,9 @@ export default function HealthPage() {
       <Collapse id="profile" open={panel === 'profile'} title={`Profile · ${selected.name}`}><ProfilePanel /></Collapse>
       <Collapse id="crew" open={panel === 'crew'} title="Crew overview · other members"><CrewPanel /></Collapse>
       <Collapse id="detail" open={panel === 'detail'} title="Detailed view · eight indicators"><DetailPanel reports={reports} onOpen={setOpen} /></Collapse>
-      <Collapse id="history" open={panel === 'history'} title="Historical records · resolved emergencies"><HistoryPanel /></Collapse>
+      <Collapse id="history" open={panel === 'history'} title="Historical records · health events and emergencies"><section aria-label="Health event history" className="mb-5"><h3 className="font-display mb-2 text-lg">Health event history · {selected.name}</h3><EventHistoryList records={healthRecords} testid="list-health-history" emptyText="No resolved health events for this crew member yet." /></section><h3 className="font-display mb-2 text-lg">Emergency history</h3><HistoryPanel /></Collapse>
       {panel === 'biometric' && <section id="panel-biometric" aria-label="Biometric data" data-testid="panel-biometric">
+      <section id="health-events" aria-label="Health events" className="mb-4"><div className="mb-2 flex flex-wrap items-baseline justify-between gap-2"><h2 className="font-display text-lg">Health events</h2><span className="font-mono text-[11px] text-muted-foreground">latest log {log?.date ?? 'none'} · resolved go to Historical records</span></div><ActiveEvents key={selected.id} alerts={healthAlerts} testid="list-health-events" emptyText={`No active health events for ${selected.name}.`} /></section>
       <BiometricWarnings reports={reports} onOpen={setOpen} />
       <div className="panel rise relative h-[560px] min-w-0 overflow-hidden p-2 md:h-[640px]">
         <div className="absolute left-4 top-4 z-10 font-mono text-[11px] text-muted-foreground">
@@ -55,7 +62,8 @@ export default function HealthPage() {
         </div>
         <p className="absolute inset-x-0 bottom-3 text-center font-mono text-[11px] text-muted-foreground">Tap or focus a body point to open its report</p>
       </div>
-      <div className="mt-4 rounded-xl border border-border p-4 text-xs leading-relaxed text-muted-foreground"><Info className="mb-1 h-4 w-4" />Scores derived from the profile, the latest garden log ({log ? log.date : 'no logs'}) and simulated ship telemetry. They are not diagnoses and do not replace evaluation by a professional.</div>
+      <SymptomForm />
+      <div className="mt-4 rounded-xl border border-border bg-card/70 p-4 text-xs leading-relaxed text-muted-foreground"><Info className="mb-1 h-4 w-4" />Scores derived from the profile, the latest daily log ({log ? log.date : 'no logs'}) and simulated ship telemetry. They are not diagnoses and do not replace evaluation by a professional.</div>
       </section>}
       </div>
       </div>

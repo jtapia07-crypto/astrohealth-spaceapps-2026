@@ -1,21 +1,20 @@
 import { type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Activity, Rocket, Siren, Sprout, UserRound, Globe2 } from 'lucide-react';
+import { Activity, Rocket, Sprout, UserRound, Globe2 } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { deriveAlerts } from '@/lib/alerts';
 
 const NAV = [
   { href: '/', label: 'Human', tid: 'humano', icon: Activity },
   { href: '/nave', label: 'Ship', tid: 'nave', icon: Rocket },
-  { href: '/critico', label: 'Critical', tid: 'critico', icon: Siren },
   { href: '/jardin', label: 'Garden', tid: 'jardin', icon: Sprout },
 ];
 
 export function Shell({ children }: { children: ReactNode }) {
   const [loc] = useLocation();
-  const { ship, myLogs, selected, alerts, mission } = useStore();
-  const active = deriveAlerts(ship, myLogs[0], selected).filter((a) => a.severity !== 'info' && alerts[a.id]?.resolved?.sig !== a.sig);
-  const urgent = active.some((a) => a.severity === 'urgente' || a.severity === 'critico');
+  const { ship, myLogs, selected, mission, getEventState } = useStore();
+  const active = deriveAlerts(ship, myLogs[0], selected).filter((a) => a.severity !== 'info' && getEventState(a)?.resolved?.sig !== a.sig);
+  const getBadge = (href: string) => { const src = href === '/' ? 'salud' : href === '/nave' ? 'nave' : null; if (!src) return null; const list = active.filter((a) => a.source === src); return list.length ? { n: list.length, urgent: list.some((a) => a.severity === 'urgente' || a.severity === 'critico') } : null; };
   return (
     <div className="grain relative min-h-[100dvh]">
       <div className="stars" /><div className="stars2" />
@@ -39,11 +38,11 @@ export function Shell({ children }: { children: ReactNode }) {
       </footer>
       <nav aria-label="Main sections" className="fixed inset-x-0 bottom-3 z-40 mx-auto flex w-[min(30rem,calc(100%-1.5rem))] justify-between rounded-2xl border border-border bg-card/90 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-md">
         {NAV.map(({ href, label, tid, icon: Icon }) => {
-          const on = loc === href;
+          const on = loc === href; const b = getBadge(href);
           return (
             <Link key={href} href={href} data-testid={`nav-${tid}`} aria-current={on ? 'page' : undefined} className={`relative flex flex-1 flex-col items-center gap-0.5 rounded-xl py-2 text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ${on ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
               <Icon className="h-5 w-5" />{label}
-              {href === '/critico' && active.length > 0 && <span data-testid="badge-alerts" className={`absolute right-3 top-1 grid h-4 min-w-4 place-items-center rounded-full px-1 font-mono text-[10px] ${urgent ? 'bg-destructive text-destructive-foreground' : 'bg-chart-3 text-background'}`}>{active.length}</span>}
+              {b && <span data-testid={`badge-alerts-${tid}`} aria-label={`${b.n} active events`} className={`absolute right-3 top-1 grid h-4 min-w-4 place-items-center rounded-full px-1 font-mono text-[10px] ${b.urgent ? 'bg-destructive text-destructive-foreground' : 'bg-chart-3 text-background'}`}>{b.n}</span>}
             </Link>
           );
         })}

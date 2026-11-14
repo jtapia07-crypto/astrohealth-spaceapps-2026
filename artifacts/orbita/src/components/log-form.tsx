@@ -2,10 +2,8 @@ import { useEffect, useState } from 'react';
 import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { SYMPTOMS } from '@/lib/health';
 import type { DailyLog } from '@/lib/types';
 
 export function LogForm({ initial, onSave }: { initial: DailyLog; onSave: (l: DailyLog) => void }) {
@@ -29,9 +27,8 @@ export function LogForm({ initial, onSave }: { initial: DailyLog; onSave: (l: Da
       </div>
       <div className="space-y-1.5"><L>Meals</L><Input value={f.meals} onChange={(e) => set('meals', e.target.value)} placeholder="Breakfast, lunch, dinner" data-testid="input-meals" className="bg-background/60" /></div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.social} onChange={(e) => set('social', e.target.checked)} data-testid="checkbox-social" className="h-4 w-4 accent-[hsl(172_58%_48%)]" />I had meaningful social contact (family, crew, friends)</label>
-      <div className="space-y-1.5"><L>Symptoms</L><div className="flex flex-wrap gap-1.5">{SYMPTOMS.map((s) => { const on = f.symptoms.includes(s.id); return <button type="button" aria-pressed={on} key={s.id} onClick={() => set('symptoms', on ? f.symptoms.filter((x) => x !== s.id) : [...f.symptoms, s.id])} data-testid={`button-symptom-${s.id}`} className={`rounded-full border px-3 py-1 text-xs transition ${on ? (s.urgent ? 'border-destructive bg-destructive/25' : 'border-chart-3 bg-chart-3/20') : 'border-border text-muted-foreground'}`}>{s.label}</button>; })}</div></div>
-      <div className="space-y-1.5"><L>Notes / how I feel</L><Textarea value={f.notes} onChange={(e) => set('notes', e.target.value)} data-testid="input-notes" className="bg-background/60" /></div>
-      <Button type="submit" className="w-full" data-testid="button-save-log"><Save />Save daily log</Button>
+      <Button type="submit" className="w-full" data-testid="button-save-log"><Save />Save daily journal</Button>
+      <p className="text-center font-mono text-[11px] text-muted-foreground">Symptoms and notes are logged in Human, Biometric data.</p>
     </form>
   );
 }
