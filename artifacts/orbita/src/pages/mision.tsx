@@ -10,8 +10,15 @@ import type { Destination, Mission } from '@/lib/types';
 import { MISSION_FACTS, NASA_REFERENCES } from '@/data/nasa';
 import { useToast } from '@/hooks/use-toast';
 import { usePageMeta } from '@/hooks/use-page-meta';
+import earthIssImage from '@/assets/destinations/iss.webp';
+import moonImage from '@/assets/destinations/moon.webp';
+import marsImage from '@/assets/destinations/mars.webp';
 
-const DEST: { id: Destination; color: string }[] = [{ id: 'iss', color: 'hsl(195 70% 55%)' }, { id: 'moon', color: 'hsl(40 15% 80%)' }, { id: 'mars', color: 'hsl(14 75% 52%)' }];
+const DEST: { id: Destination; image: string; alt: string }[] = [
+  { id: 'iss', image: earthIssImage, alt: 'The International Space Station above Earth’s blue horizon, photographed by the STS-130 crew' },
+  { id: 'moon', image: moonImage, alt: 'The full Moon with its gray lunar maria and detailed impact craters' },
+  { id: 'mars', image: marsImage, alt: 'Hubble true-color view of Mars with rust-colored terrain, dark surface markings and a bright polar cap' },
+];
 
 export default function MisionPage() {
   usePageMeta('Mission', 'Destination and settings of the simulated mission with educational NASA references.');
@@ -25,9 +32,10 @@ export default function MisionPage() {
       <PageHead kicker="Flight plan" title="Mission"><DemoTag text="Demo mission" /></PageHead>
       <div className="grid gap-3 sm:grid-cols-3">{DEST.map((d) => { const m = MISSION_FACTS[d.id]; const on = f.destination === d.id; return (
         <button key={d.id} onClick={() => setF({ ...f, destination: d.id })} data-testid={`button-dest-${d.id}`} aria-pressed={on} className={`panel rise group p-5 text-left transition hover:-translate-y-1 ${on ? 'ring-2 ring-primary' : ''}`}>
-          <svg viewBox="0 0 80 80" className="mb-3 h-16 w-16" aria-hidden><circle cx="40" cy="40" r="26" fill={d.color} />{d.id === 'iss' && <ellipse cx="40" cy="40" rx="38" ry="9" fill="none" stroke="hsl(22 95% 58%)" strokeWidth="1.5" />}{d.id === 'moon' && <><circle cx="32" cy="34" r="5" fill="hsl(40 10% 65%)" /><circle cx="50" cy="50" r="4" fill="hsl(40 10% 65%)" /></>}{d.id === 'mars' && <path d="M20 44 q20 -8 40 2" stroke="hsl(14 60% 38%)" strokeWidth="4" fill="none" />}</svg>
+          <img src={d.image} alt={d.alt} width={160} height={112} draggable={false} className={`mb-3 h-28 w-40 rounded-lg transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none ${d.id === 'iss' ? 'object-cover' : 'object-contain object-left mix-blend-screen'}`} />
           <div className="font-display text-xl">{m.name}</div><div className={`font-mono text-[11px] uppercase ${d.id === 'mars' ? 'text-chart-3' : 'text-muted-foreground'}`}>{m.kind}</div>
         </button>); })}</div>
+      <p className="mt-2 font-mono text-[10px] text-muted-foreground">Destination imagery: NASA · NASA/ESA/STScI (Mars).</p>
       {f.destination === 'mars' && <p className="mt-3 rounded-xl border border-chart-3/50 bg-chart-3/10 p-3 text-sm text-chart-3" data-testid="text-mars-note">Hypothetical scenario: no human has traveled to Mars. The data describes a future mission concept.</p>}
       <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]">
         <section className="panel rise p-5">
