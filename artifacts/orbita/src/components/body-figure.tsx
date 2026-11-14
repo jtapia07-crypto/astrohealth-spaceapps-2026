@@ -7,42 +7,98 @@ const POS: Record<HotspotId, { x: number; y: number; lx: number; side: 'l' | 'r'
   corazon: { x: 112, y: 120, lx: 178, side: 'r' },
   sangre: { x: 40, y: 175, lx: 8, side: 'l' },
   sudor: { x: 64, y: 108, lx: 12, side: 'l' },
-  musculo: { x: 127, y: 300, lx: 180, side: 'r' },
+  musculo: { x: 120, y: 292, lx: 180, side: 'r' },
   huesos: { x: 82, y: 345, lx: 18, side: 'l' },
 };
 
 export function BodyFigure({ reports, active, onSelect }: { reports: HotspotReport[]; active: HotspotId | null; onSelect: (id: HotspotId) => void }) {
-  const skin = 'hsl(224 35% 22%)';
-  const line = 'hsl(40 30% 85% / .35)';
+  const line = 'hsl(205 35% 78% / .25)';
   return (
     <svg viewBox="-40 0 280 450" className="h-full w-full" role="img" aria-label="Cuerpo humano con puntos interactivos">
       <defs>
-        <linearGradient id="skin" x1="0" x2="1"><stop offset="0" stopColor="hsl(224 38% 26%)" /><stop offset=".5" stopColor="hsl(224 34% 32%)" /><stop offset="1" stopColor="hsl(224 38% 24%)" /></linearGradient>
+        <linearGradient id="skin" x1="0" x2="1">
+          <stop offset="0" stopColor="hsl(219 28% 25%)" />
+          <stop offset=".26" stopColor="hsl(215 26% 42%)" />
+          <stop offset=".48" stopColor="hsl(214 24% 51%)" />
+          <stop offset=".68" stopColor="hsl(217 26% 39%)" />
+          <stop offset="1" stopColor="hsl(222 31% 23%)" />
+        </linearGradient>
+        <radialGradient id="body-light" cx=".42" cy=".22" r=".8">
+          <stop offset="0" stopColor="hsl(198 40% 85% / .17)" />
+          <stop offset="1" stopColor="hsl(218 34% 10% / .12)" />
+        </radialGradient>
         <radialGradient id="aura"><stop offset="0" stopColor="hsl(22 95% 58% / .18)" /><stop offset="1" stopColor="transparent" /></radialGradient>
       </defs>
       <ellipse cx="100" cy="220" rx="140" ry="220" fill="url(#aura)" />
-      <g stroke="url(#skin)" strokeLinecap="round" fill="none">
-        <path d="M54 100 Q36 106 33 140 L28 205 Q26 225 24 238" strokeWidth="17" />
-        <path d="M146 100 Q164 106 167 140 L172 205 Q174 225 176 238" strokeWidth="17" />
-        <path d="M84 238 L80 330 L78 420" strokeWidth="27" />
-        <path d="M116 238 L120 330 L122 420" strokeWidth="27" />
+      <ellipse cx="100" cy="437" rx="43" ry="3" fill="hsl(220 35% 5% / .45)" />
+      <g fill="url(#skin)" stroke="hsl(205 34% 70% / .22)" strokeWidth=".65" strokeLinejoin="round">
+        {/* A continuous contour gives the shoulders, waist and limbs natural transitions. */}
+        <path id="body-contour" d="M91 67
+          Q92 78 86 82 L67 88 Q53 90 48 104
+          Q44 115 44 132 L40 155 Q36 166 36 177
+          L30 210 L27 229 Q22 235 21 243 L20 255
+          Q21 259 23 254 L25 244 L25 260 Q27 264 29 259
+          L30 246 L31 260 Q33 263 35 258 L35 244
+          L37 254 Q40 257 40 252 L39 237
+          Q44 230 43 224 L47 205 Q55 185 55 172
+          L57 156 Q63 142 62 124
+          Q66 137 65 153 Q63 170 67 184
+          Q71 198 66 218 Q62 234 64 251
+          Q65 278 70 302 Q73 313 72 325
+          Q66 346 70 369 L75 408 L74 419
+          Q66 423 64 429 Q65 434 73 434 L85 432
+          Q90 430 88 423 L87 409 L88 373
+          Q94 349 89 330 Q88 321 91 308
+          L98 269 Q100 259 102 269 L109 308
+          Q112 321 111 330 Q106 349 112 373
+          L113 409 L112 423 Q110 430 115 432
+          L127 434 Q135 434 136 429 Q134 423 126 419
+          L125 408 L130 369 Q134 346 128 325
+          Q127 313 130 302 Q135 278 136 251
+          Q138 234 134 218 Q129 198 133 184
+          Q137 170 135 153 Q134 137 138 124
+          Q137 142 143 156 L145 172 Q145 185 153 205
+          L157 224 Q156 230 161 237 L160 252
+          Q160 257 163 254 L165 244 L165 258
+          Q167 263 169 260 L170 246 L171 259
+          Q173 264 175 260 L175 244 L177 254
+          Q179 259 180 255 L179 243 Q178 235 173 229
+          L170 210 L164 177 Q164 166 160 155
+          L156 132 Q156 115 152 104 Q147 90 133 88
+          L114 82 Q108 78 109 67 Z" />
+        <path d="M81 37 Q78 18 90 13 Q101 8 112 15
+          Q121 21 119 38 Q124 34 122 45 Q121 50 118 49
+          L115 58 Q110 69 100 71 Q90 69 85 58 L82 49
+          Q79 50 78 45 Q76 34 81 37 Z" />
       </g>
-      <g fill="url(#skin)">
-        <ellipse cx="100" cy="42" rx="23" ry="28" />
-        <rect x="90" y="64" width="20" height="22" rx="6" />
-        <path d="M60 88 Q100 78 140 88 Q156 94 152 116 Q148 160 142 196 Q140 236 128 248 Q100 256 72 248 Q60 236 58 196 Q52 160 48 116 Q44 94 60 88 Z" />
-        <ellipse cx="23" cy="250" rx="8" ry="12" /><ellipse cx="177" cy="250" rx="8" ry="12" />
-        <ellipse cx="72" cy="428" rx="14" ry="6" /><ellipse cx="128" cy="428" rx="14" ry="6" />
+      <use href="#body-contour" fill="url(#body-light)" pointerEvents="none" />
+      <g stroke={line} strokeWidth=".85" fill="none" strokeLinecap="round">
+        <path d="M91 76 L86 88 Q79 90 69 93 M109 76 L114 88 Q121 90 131 93" />
+        <path d="M70 101 Q82 95 96 102 M104 102 Q118 95 130 101
+          M66 118 Q79 128 95 119 M105 119 Q121 128 134 118
+          M100 99 L100 135" />
+        <path d="M73 139 Q80 148 78 164 M127 139 Q120 148 122 164
+          M85 145 Q100 148 115 145 M86 160 Q100 163 114 160
+          M87 177 Q100 180 113 177 M100 144 L100 190" opacity=".55" />
+        <path d="M73 207 Q80 219 95 226 M127 207 Q120 219 105 226
+          M72 241 Q78 275 80 307 M128 241 Q122 275 120 307
+          M78 324 Q82 320 86 325 M114 325 Q118 320 122 324
+          M77 341 Q81 365 80 393 M123 341 Q119 365 120 393" />
+        <path d="M51 106 Q58 111 56 126 M149 106 Q142 111 144 126
+          M47 144 L44 162 M153 144 L156 162
+          M39 178 Q44 182 43 195 M161 178 Q156 182 157 195" />
+        <path d="M86 36 Q91 33 96 36 M104 36 Q109 33 114 36
+          M100 38 L97 49 Q100 51 103 49
+          M94 57 Q100 60 106 57 M95 63 Q100 65 105 63" />
       </g>
-      <g stroke={line} strokeWidth="1.2" fill="none">
-        <path d="M100 92 L100 238" strokeDasharray="3 3" />
-        {[104, 116, 128, 140, 152].map((y, i) => <path key={y} d={`M100 ${y} Q${76 - i * 1} ${y + 2} ${66 + i * 2} ${y + 12}  M100 ${y} Q${124 + i} ${y + 2} ${134 - i * 2} ${y + 12}`} />)}
-        <path d="M70 232 Q100 214 130 232" /><path d="M82 260 L80 330 M118 260 L120 330" strokeDasharray="2 4" />
-        <path d="M70 94 Q84 100 100 96 Q116 100 130 94" />
+      <ellipse cx="100" cy="193" rx="1.6" ry="2" fill="hsl(220 30% 20% / .5)" />
+      <path d="M108 110 Q104 105 101 112 Q98 119 105 126
+        L112 132 Q121 124 121 117 Q120 110 115 112
+        L113 106 L109 106 Z" fill="hsl(352 60% 53% / .55)" />
+      <g stroke="hsl(352 65% 65% / .2)" strokeWidth="1" fill="none">
+        <path d="M107 128 Q99 163 100 218 M101 111 Q73 104 56 133 L40 195
+          M100 217 L81 290 M100 217 L119 290" />
       </g>
-      <path d="M112 112 c-6 -8 -16 -2 -10 8 l10 10 l10 -10 c6 -10 -4 -16 -10 -8z" fill="hsl(352 70% 52% / .75)" />
-      <g stroke="hsl(352 70% 60% / .35)" strokeWidth="1" fill="none"><path d="M106 130 Q90 170 84 236 M118 130 Q112 170 116 236 M100 120 Q70 110 46 140 L34 200" /></g>
-      <ellipse cx="91" cy="38" rx="3" ry="2" fill="hsl(40 30% 85% / .5)" /><ellipse cx="109" cy="38" rx="3" ry="2" fill="hsl(40 30% 85% / .5)" />
       {reports.map((r) => {
         const p = POS[r.id]; const c = LEVEL_COLOR[r.level]; const on = active === r.id;
         const tx = p.side === 'r' ? p.lx : p.lx;
