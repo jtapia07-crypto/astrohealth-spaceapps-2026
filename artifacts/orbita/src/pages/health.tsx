@@ -6,6 +6,7 @@ import { BodyFigure } from '@/components/body-figure';
 import { OrganVisual } from '@/components/medical/organ-visual';
 import { DemoTag, PageHead } from '@/components/shell';
 import { useStore } from '@/lib/store';
+import { BodyNav, Collapse, CrewPanel, DetailPanel, HistoryPanel, ProfilePanel, type PanelId } from '@/components/health/body-nav';
 import { healthReports, LEVEL_COLOR, LEVEL_LABEL, type HotspotId } from '@/lib/health';
 import { usePageMeta } from '@/hooks/use-page-meta';
 
@@ -15,6 +16,7 @@ export default function HealthPage() {
   const log = myLogs[0];
   const reports = useMemo(() => healthReports(selected, ship, log), [selected, ship, log]);
   const [open, setOpen] = useState<HotspotId | null>(null);
+  const [panel, setPanel] = useState<PanelId | null>(null);
   const r = reports.find((x) => x.id === open);
   const urgent = log?.symptoms.some((s) => ['dolor_pecho', 'falta_aire', 'neurologico'].includes(s));
   const overall = Math.round(reports.reduce((s, x) => s + x.score, 0) / reports.length);
@@ -33,28 +35,22 @@ export default function HealthPage() {
           ))}
         </div>
       </section>
-      <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-        <div className="panel rise relative h-[560px] min-w-0 overflow-hidden p-2 md:h-[640px]">
-          <div className="absolute left-4 top-4 z-10 font-mono text-[11px] text-muted-foreground">
-            <div>{selected.name.toUpperCase()}</div><div>{selected.bloodGroup} · {selected.age} yrs · {ship.gravity} g</div>
-          </div>
-          <div className="absolute right-4 top-4 z-10 text-right"><div className="font-display text-4xl font-bold text-primary" data-testid="text-overall">{overall}</div><div className="font-mono text-[10px] uppercase text-muted-foreground">illustrative index</div></div>
-          <div className="absolute inset-x-2 bottom-8 top-14">
-            <BodyFigure reports={reports} active={open} onSelect={setOpen} />
-          </div>
-          <p className="absolute inset-x-0 bottom-3 text-center font-mono text-[11px] text-muted-foreground">Tap or focus a body point to open its report</p>
+      <BodyNav open={panel} onToggle={(id) => setPanel((p) => (p === id ? null : id))} />
+      <Collapse id="profile" open={panel === 'profile'} title={`Profile · ${selected.name}`}><ProfilePanel /></Collapse>
+      <Collapse id="crew" open={panel === 'crew'} title="Crew overview · other members"><CrewPanel /></Collapse>
+      <Collapse id="detail" open={panel === 'detail'} title="Detailed view · eight indicators"><DetailPanel reports={reports} onOpen={setOpen} /></Collapse>
+      <Collapse id="history" open={panel === 'history'} title="Historical records · resolved emergencies"><HistoryPanel /></Collapse>
+      <div className="panel rise relative h-[560px] min-w-0 overflow-hidden p-2 md:h-[640px]">
+        <div className="absolute left-4 top-4 z-10 font-mono text-[11px] text-muted-foreground">
+          <div>{selected.name.toUpperCase()}</div><div>Simulated gravity · {ship.gravity} g</div>
         </div>
-        <div className="min-w-0 space-y-3">
-          {reports.map((x, i) => (
-            <button key={x.id} onClick={() => setOpen(x.id)} data-testid={`card-hotspot-${x.id}`} style={{ animationDelay: i * 50 + 'ms' }} className="panel rise group flex w-full items-center gap-4 p-4 text-left transition hover:border-primary/50">
-              <span className="h-10 w-1 rounded-full" style={{ background: LEVEL_COLOR[x.level] }} />
-              <span className="min-w-0 flex-1"><span className="font-display block text-lg font-semibold">{x.label}</span><span className="block truncate text-sm text-muted-foreground">{x.condition}</span></span>
-              <span className="text-right"><span className="font-mono block text-lg" style={{ color: LEVEL_COLOR[x.level] }}>{x.score}</span><span className="font-mono text-[10px] uppercase text-muted-foreground">{LEVEL_LABEL[x.level]}</span></span>
-            </button>
-          ))}
-          <div className="rounded-xl border border-border p-4 text-xs leading-relaxed text-muted-foreground"><Info className="mb-1 h-4 w-4" />Scores derived from the profile, the latest garden log ({log ? log.date : 'no logs'}) and simulated ship telemetry. They are not diagnoses and do not replace evaluation by a professional.</div>
+        <div className="absolute right-4 top-4 z-10 text-right"><div className="font-display text-4xl font-bold text-primary" data-testid="text-overall">{overall}</div><div className="font-mono text-[10px] uppercase text-muted-foreground">illustrative index</div></div>
+        <div className="absolute inset-x-2 bottom-8 top-14">
+          <BodyFigure reports={reports} active={open} onSelect={setOpen} />
         </div>
+        <p className="absolute inset-x-0 bottom-3 text-center font-mono text-[11px] text-muted-foreground">Tap or focus a body point to open its report</p>
       </div>
+      <div className="mt-4 rounded-xl border border-border p-4 text-xs leading-relaxed text-muted-foreground"><Info className="mb-1 h-4 w-4" />Scores derived from the profile, the latest garden log ({log ? log.date : 'no logs'}) and simulated ship telemetry. They are not diagnoses and do not replace evaluation by a professional.</div>
       <Dialog open={!!r} onOpenChange={(o) => !o && setOpen(null)}>
         <DialogContent className="organ-dialog max-h-[90dvh] overflow-y-auto border-border bg-card sm:max-w-4xl">
           {r && <div key={r.id} className="grid gap-5 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"><div className="min-w-0 space-y-4 md:order-1">

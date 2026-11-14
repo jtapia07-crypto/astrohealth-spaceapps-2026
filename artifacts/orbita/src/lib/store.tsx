@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { AlertState, DailyLog, Mission, Profile, Ship } from './types';
 import { DEFAULT_MISSION, DEFAULT_SHIP, DEMO_CREW, blankProfile, migrateLogs, migrateMission, migrateProfiles, seedLogs } from './defaults';
-import { load, save, wipeAll } from './storage';
+import { load, save, saveEmergencyRecords, wipeAll } from './storage';
+import { validateEmergency, type EmergencyInput, type EmergencyRecord } from './emergency-history';
 
 interface Store {
   crew: Profile[]; selected: Profile; selectId: (id: string) => void;
@@ -10,6 +11,8 @@ interface Store {
   ship: Ship; setShip: (s: Ship) => void; resetShip: () => void;
   mission: Mission; setMission: (m: Mission) => void;
   alerts: Record<string, AlertState>; setAlert: (id: string, s: AlertState) => void;
+  emergencyRecords: EmergencyRecord[];
+  addEmergencyRecord: (profileId: string, input: EmergencyInput) => void;
   resetAll: () => void;
 }
 const Ctx = createContext<Store | null>(null);
@@ -21,6 +24,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [ship, setShip] = useState<Ship>(() => load('ship', DEFAULT_SHIP));
   const [mission, setMission] = useState<Mission>(() => migrateMission(load('mission', DEFAULT_MISSION())));
   const [alerts, setAlerts] = useState<Record<string, AlertState>>(() => load('alerts', {}));
+  const [emergencyRecords, setEmergencyRecords] = useState<EmergencyRecord[]>(() => load('emergencies', []));
   useEffect(() => save('crew', crew), [crew]);
   useEffect(() => save('selected', selectedId), [selectedId]);
   useEffect(() => save('logs', logs), [logs]);
@@ -34,16 +38,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       crew, selected, selectId: setSelectedId,
       updateProfile: (p) => setCrew((c) => c.map((x) => (x.id === p.id ? p : x))),
       addProfile: () => { const id = 'u-' + Date.now().toString(36); setCrew((c) => [...c, blankProfile(id)]); setSelectedId(id); return id; },
-      removeProfile: (id) => { setCrew((c) => { const n = c.filter((x) => x.id !== id); return n.length ? n : DEMO_CREW; }); setLogs((l) => l.filter((x) => x.profileId !== id)); setSelectedId((s) => (s === id ? DEMO_CREW[0].id : s)); },
+      removeProfile: (id) => { const remainingRecords = emergencyRecords.filter((record) => record.profileId !== id); saveEmergencyRecords(remainingRecords); setEmergencyRecords(remainingRecords); setCrew((c) => { const n = c.filter((x) => x.id !== id); return n.length ? n : DEMO_CREW; }); setLogs((l) => l.filter((x) => x.profileId !== id)); setSelectedId((s) => (s === id ? DEMO_CREW[0].id : s)); },
       logs, myLogs: logs.filter((l) => l.profileId === selected.id).sort((a, b) => b.date.localeCompare(a.date)),
       upsertLog: (l) => setLogs((all) => [...all.filter((x) => !(x.profileId === l.profileId && x.date === l.date) && x.id !== l.id), l]),
       deleteLog: (id) => setLogs((all) => all.filter((x) => x.id !== id)),
       ship, setShip, resetShip: () => setShip(DEFAULT_SHIP),
       mission, setMission,
       alerts, setAlert: (id, s) => setAlerts((a) => ({ ...a, [id]: s })),
-      resetAll: () => { wipeAll(); setCrew(DEMO_CREW); setSelectedId(DEMO_CREW[0].id); setLogs(seedLogs()); setShip(DEFAULT_SHIP); setMission(DEFAULT_MISSION()); setAlerts({}); },
+      emergencyRecords,
+      addEmergencyRecord: (profileId, input) => {
+        if (!crew.some((profile) => profile.id === profileId)) throw new Error('Select an existing crew member before saving.');
+        const next = [...emergencyRecords, { ...validateEmergency(input), id: crypto.randomUUID(), profileId, example: false }];
+        saveEmergencyRecords(next);
+        setEmergencyRecords(next);
+      },
+      resetAll: () => { wipeAll(); setCrew(DEMO_CREW); setSelectedId(DEMO_CREW[0].id); setLogs(seedLogs()); setShip(DEFAULT_SHIP); setMission(DEFAULT_MISSION()); setAlerts({}); setEmergencyRecords([]); },
     };
-  }, [crew, selectedId, logs, ship, mission, alerts]);
+  }, [crew, selectedId, logs, ship, mission, alerts, emergencyRecords]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export function useStore() { const s = useContext(Ctx); if (!s) throw new Error('StoreProvider missing'); return s; }
