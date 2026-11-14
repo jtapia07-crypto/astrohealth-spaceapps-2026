@@ -4,9 +4,9 @@ import type { HotspotId } from '@/lib/health';
 export const NEON = '#33C1AE';
 
 export const ORGAN_LINE_META: Record<HotspotId, { alt: string; caption: string; motion: string }> = {
-  cabeza: { alt: 'Neon line drawing of the brain in side view with lobes, cerebellum and brainstem', caption: 'Brain · lateral view', motion: 'Neural pulse' },
+  cabeza: { alt: 'Neon line drawing of the brain in side view with cerebral hemisphere, gyri, lateral and central sulci, cerebellum and brainstem', caption: 'Brain · lateral view', motion: 'Neural pulse' },
   ojos: { alt: 'Neon line drawing of an eye cross-section with cornea, lens, retina and optic nerve', caption: 'Eye · sagittal section', motion: 'Blink and focus' },
-  corazon: { alt: 'Neon line drawing of the heart with aorta, vena cava and coronary vessels', caption: 'Heart · anterior view', motion: 'Heartbeat cycle' },
+  corazon: { alt: 'Neon line drawing of the heart in anterior view with aortic arch, superior vena cava, pulmonary trunk, pulmonary veins, tapered ventricles and coronary vessels', caption: 'Heart · anterior view', motion: 'Heartbeat cycle' },
   huesos: { alt: 'Neon line drawing of the pelvis and femur', caption: 'Hip and femur', motion: 'Density scan' },
   musculo: { alt: 'Neon line drawing of the calf muscles with Achilles tendon', caption: 'Calf · postural muscle', motion: 'Contraction' },
   sangre: { alt: 'Neon line drawing of red blood cells flowing in a cut-away vessel', caption: 'Red cells in a vessel', motion: 'Cell flow' },
@@ -17,12 +17,15 @@ export const ORGAN_LINE_META: Record<HotspotId, { alt: string; caption: string; 
 const DRAW: Record<HotspotId, ReactNode> = {
   cabeza: (
     <>
-      <path d="M52 112 Q38 80 60 58 Q80 34 116 38 Q152 36 168 62 Q184 88 172 112 Q166 128 148 130 Q136 140 118 134 Q100 142 84 132 Q62 132 52 112 Z" />
-      <path d="M86 46 Q92 70 82 92 M118 40 Q112 64 124 84 Q132 98 120 112 M146 54 Q138 72 150 90 M64 96 Q86 98 102 88 Q120 80 140 96 Q154 104 168 100" className="nl-soft" />
-      <path d="M140 130 Q160 150 150 160 Q132 168 120 154 Q118 142 124 136" />
-      <path d="M144 140 Q140 150 130 154 M148 148 Q140 156 132 158" className="nl-soft" />
-      <path d="M112 136 Q110 160 116 182 M104 138 Q102 160 106 184" />
-      <circle className="nl-node" cx="96" cy="70" r="2.4" /><circle className="nl-node nl-d2" cx="134" cy="66" r="2.4" /><circle className="nl-node nl-d3" cx="110" cy="104" r="2.4" />
+      <path d="M50 118 Q36 92 50 66 Q66 38 104 34 Q146 32 170 58 Q188 80 180 108 Q176 122 162 128 Q150 132 140 128 Q128 136 112 134 Q96 140 80 134 Q60 134 50 118 Z" />
+      <path d="M108 36 Q104 56 112 72 Q118 86 110 100" />
+      <path d="M62 112 Q80 106 96 110 Q112 112 124 102 Q134 96 146 102" />
+      <path d="M70 58 Q80 66 74 78 Q70 88 80 94 M90 44 Q96 56 90 68 Q86 80 96 86 M126 40 Q122 54 130 62 Q138 70 132 82 M146 50 Q140 62 150 70 Q160 76 156 90 M166 72 Q156 82 164 94 M56 92 Q68 94 72 104 M120 116 Q128 124 140 120 M88 120 Q98 126 108 120" className="nl-soft" />
+      <path d="M140 128 Q164 128 170 142 Q170 156 152 160 Q134 162 124 150 Q120 140 130 132" />
+      <path d="M134 140 Q148 136 162 144 M130 148 Q146 146 158 152" className="nl-soft" />
+      <path d="M116 134 Q112 150 114 166 Q115 180 118 196 M128 140 Q126 156 126 170 Q126 182 128 196" />
+      <path d="M115 152 Q121 150 127 152 M115 170 Q121 168 126 170" className="nl-soft" />
+      <circle className="nl-node" cx="90" cy="68" r="2.4" /><circle className="nl-node nl-d2" cx="138" cy="66" r="2.4" /><circle className="nl-node nl-d3" cx="112" cy="104" r="2.4" />
     </>
   ),
   ojos: (
@@ -40,12 +43,16 @@ const DRAW: Record<HotspotId, ReactNode> = {
   ),
   corazon: (
     <g className="nl-beat">
-      <path d="M78 92 Q74 64 96 60 Q112 58 116 74 Q122 58 140 62 Q164 70 158 104 Q152 140 112 176 Q92 160 80 140 Q70 120 78 92 Z" />
-      <path d="M104 64 Q100 40 110 28 Q124 18 140 26 Q150 34 146 50" />
-      <path d="M118 40 L120 22 M130 32 L136 16 M140 36 L150 24" className="nl-soft" />
-      <path d="M90 66 L86 34 M96 64 L94 36" />
-      <path d="M116 74 Q114 112 110 168 M116 80 Q138 94 150 114" className="nl-soft" />
-      <path d="M100 92 Q92 108 96 128 M130 86 Q140 100 138 120" className="nl-soft" />
+      <path d="M82 92 Q72 108 76 132 Q82 154 104 172 Q120 188 138 198 Q148 190 154 176 Q166 150 162 124 Q158 98 140 88 Q122 80 104 84 Q90 86 82 92 Z" />
+      <path d="M100 86 Q114 122 136 196" />
+      <path d="M78 110 Q92 132 120 150 Q132 160 138 196" className="nl-soft" />
+      <path d="M82 92 Q70 98 70 112 Q70 126 78 132" className="nl-soft" />
+      <path d="M84 90 L84 30 M96 88 L96 32" />
+      <path d="M100 86 Q96 48 112 34 Q128 22 146 30 Q156 36 156 52 L156 70 M112 84 Q110 54 122 46 Q134 40 142 48 L142 70" />
+      <path d="M118 36 L114 16 M128 30 L128 12 M140 30 L146 14" />
+      <path d="M118 84 Q118 70 128 66 Q140 62 158 64 L176 60 M128 80 Q136 74 160 76 L176 76" className="nl-soft" />
+      <path d="M150 90 L172 84 M152 102 L174 100" className="nl-soft" />
+      <path d="M140 94 Q152 120 148 160 M86 104 Q82 122 90 142" className="nl-soft" />
     </g>
   ),
   huesos: (

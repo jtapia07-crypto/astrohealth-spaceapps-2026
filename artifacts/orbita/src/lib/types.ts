@@ -9,6 +9,8 @@ export interface Profile {
 export type Symptom = 'dolor_pecho' | 'falta_aire' | 'neurologico' | 'cefalea' | 'nauseas' | 'fatiga' | 'congestion';
 export interface DailyLog {
   id: string; profileId: string; date: string;
+  /** False for new Human-only entries; undefined preserves legacy Garden logs. */
+  wellbeingSaved?: boolean;
   sleepHours: number; sleepQuality: number; meals: string; hydration: number;
   mood: number; stress: number; exercise: number; social: boolean; notes: string; symptoms: Symptom[];
 }

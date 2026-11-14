@@ -52,3 +52,9 @@ La planta y su entorno inmediato deben parecer una ilustración botánica más n
 **Why:** La persona usuaria aportó una ilustración botánica como referencia «solo del estilo visual», no para cambiar la especie.
 
 **How to apply:** Mejorar el acabado sin sustituir las especies elegidas ni alterar el crecimiento, la salud o la independencia del clima respecto de los registros personales.
+
+Garden incorpora puntos proporcionales por parámetro y rachas diarias por tripulante, en cuatro recuadros encima de Daily journal, en la columna derecha.
+
+**Why:** La persona usuaria pidió gamificar Garden con puntos acumulados, racha actual, puntos de hoy y mejor racha.
+
+**How to apply:** Los puntos son un incentivo ilustrativo, no una evaluación médica. Derivarlos de los días guardados, sin recompensar varias veces la edición del mismo día ni premiar valores por encima de los límites. Los registros nuevos de síntomas en Human no deben ganar puntos de Garden hasta guardar su diario de bienestar.

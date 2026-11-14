@@ -151,11 +151,18 @@ export function BodyFigure({ reports, active, onSelect }: { reports: HotspotRepo
             <path d="M90 110 Q84 114 80 122 Q76 130 74 142 M84 116 Q78 116 72 120 M80 122 Q84 130 85 140 M76 130 Q71 134 69 140 M74 142 Q72 148 72 152 M85 140 Q88 146 90 150 M80 122 Q76 118 74 112 M90 110 Q88 104 84 100" />
             <path d="M110 110 Q116 114 120 122 Q124 130 126 142 M116 116 Q122 116 128 120 M120 122 Q118 130 119 138 M124 130 Q129 134 131 140 M126 142 Q128 148 128 152 M120 122 Q124 118 126 112 M110 110 Q112 104 116 100" />
           </g>
-          {/* Heart */}
-          <path d="M103 110 Q103 100 108 99 Q114 99 113 106" stroke="hsl(354 72% 52%)" strokeWidth="3.2" />
-          <path d="M100 112 Q99 104 98 100" stroke="hsl(215 65% 55%)" strokeWidth="2.6" />
-          <path d="M99.5 115 Q104 108 111 110 Q120 112 121 122 Q122 132 115 140 Q109 146 104 148 Q100 142 97 134 Q94 124 99.5 115 Z" fill="url(#bf-heart)" stroke="hsl(350 75% 30% / .6)" strokeWidth=".6" />
-          <path d="M107 114 Q106 128 104 146 M111 118 Q116 124 115 134" stroke="hsl(355 90% 82% / .45)" strokeWidth=".6" />
+          {/* Heart: anterior view, apex toward the left side of the body */}
+          <g data-testid="body-heart-illustration">
+            <path d="M97.5 117 L97.5 100" stroke="hsl(215 65% 55%)" strokeWidth="3" />
+            <path d="M101 116 Q100 104 101.5 101 Q103 97 108 97 Q113 97.5 113.5 102 L113.5 106" stroke="hsl(354 72% 52%)" strokeWidth="3.4" />
+            <path d="M103.5 99 L103 95 M107 97 L107.5 93.5 M110.5 98 L112 94.5" stroke="hsl(354 72% 52%)" strokeWidth="1.3" />
+            <path d="M104 118 Q105 110 110 108 Q115 107 117 110" stroke="hsl(215 60% 50%)" strokeWidth="3" />
+            <path d="M96.5 117 Q94 122 95 129 Q96.5 136 101 140 Q106 145 113 148.5 Q117 146.5 119 141 Q122.5 133 121.5 125 Q120.5 117 115 113.5 Q109 111 103 113 Q98.5 114 96.5 117 Z" fill="url(#bf-heart)" stroke="hsl(350 75% 30% / .6)" strokeWidth=".6" />
+            <path d="M96.6 118 Q93.8 124 96 131 L99.5 129 Q98 123 99.5 117 Z" fill="hsl(215 55% 45% / .55)" />
+            <path d="M104.5 114.5 Q107.5 128 112.5 147.5" stroke="hsl(40 80% 75% / .55)" strokeWidth=".7" />
+            <path d="M99 133 Q105 139 112.5 147" stroke="hsl(40 80% 75% / .35)" strokeWidth=".55" />
+            <path d="M115 114 Q119 118 119.5 126" stroke="hsl(355 90% 82% / .4)" strokeWidth=".55" />
+          </g>
           {/* Diaphragm, liver, stomach, kidneys */}
           <path d="M66 160 Q100 150 134 160" stroke="hsl(30 50% 75% / .18)" strokeWidth="1" />
           <path d="M68 164 Q84 156 104 160 Q110 162 108 166 Q102 172 94 178 Q84 184 74 182 Q66 178 68 164 Z" fill="url(#bf-liver)" stroke="hsl(355 70% 30% / .5)" strokeWidth=".6" />
@@ -188,6 +195,14 @@ export function BodyFigure({ reports, active, onSelect }: { reports: HotspotRepo
         </g>
       </g>
 
+
+      {/* Brain seen through the cranium: hemispheres, gyri, cerebellum, brainstem */}
+      <g pointerEvents="none" data-testid="body-brain-illustration" strokeLinecap="round" fill="none">
+        <path d="M99.4 12 Q91 11.5 87 16 Q83.5 20.5 84 26.5 Q84.6 30.5 88 31.6 Q93 32.5 99.4 31 Z M100.6 12 Q109 11.5 113 16 Q116.5 20.5 116 26.5 Q115.4 30.5 112 31.6 Q107 32.5 100.6 31 Z" fill="hsl(345 55% 76% / .42)" stroke="hsl(345 60% 82% / .7)" strokeWidth=".55" />
+        <path d="M89 16 Q92 18 91 21 Q90 24 93 25 M95 13.5 Q94 17 96.5 19 Q98 22 95.5 25 M86 24 Q89 26 88 29 M92 28 Q95 27 97 29.5 M111 16 Q108 18 109 21 Q110 24 107 25 M105 13.5 Q106 17 103.5 19 Q102 22 104.5 25 M114 24 Q111 26 112 29 M108 28 Q105 27 103 29.5" stroke="hsl(345 50% 55% / .6)" strokeWidth=".45" />
+        <path d="M92 31.4 Q95 34.6 99 33.4 M108 31.4 Q105 34.6 101 33.4" fill="hsl(330 40% 70% / .35)" stroke="hsl(330 45% 78% / .55)" strokeWidth=".45" />
+        <path d="M100 31 Q98.6 34 99 38 M100 31 Q101.4 34 101 38" stroke="hsl(35 40% 80% / .45)" strokeWidth=".9" />
+      </g>
       {/* Face: brows, eyes, nose, lips — subtle, anatomical */}
       <g pointerEvents="none">
         <path d="M86.5 35.6 Q91.5 33.4 96.5 35.4 M103.5 35.4 Q108.5 33.4 113.5 35.6" fill="none" stroke="hsl(30 25% 70% / .55)" strokeWidth="1" strokeLinecap="round" />

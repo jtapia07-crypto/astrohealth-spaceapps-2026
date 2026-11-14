@@ -6,6 +6,8 @@ import { DemoTag, PageHead } from '@/components/shell';
 import { PlantScene } from '@/components/plant-scene';
 import { SpaceBackdrop } from '@/components/space-backdrop';
 import { LogForm } from '@/components/log-form';
+import { GardenProgressCards } from '@/components/garden-progress-cards';
+import { gardenProgress } from '@/lib/garden-progress';
 import { useStore } from '@/lib/store';
 import { growthStage, shipScore, weatherFor, wellness } from '@/lib/scores';
 import { shiftISO, todayISO } from '@/lib/defaults';
@@ -27,6 +29,7 @@ export default function JardinPage() {
   const [anchor, setAnchor] = useState(todayISO());
   const [toDelete, setToDelete] = useState<DailyLog | null>(null);
   const w = wellness(myLogs, selected.sleepGoal);
+  const progress = useMemo(() => gardenProgress(myLogs, selected.id, selected.sleepGoal, todayISO()), [myLogs, selected.id, selected.sleepGoal]);
   const sScore = shipScore(ship); const weather = weatherFor(sScore);
   const stage = growthStage(myLogs.length, w?.score ?? 0);
   const [from, to] = useMemo(() => {
@@ -64,9 +67,12 @@ export default function JardinPage() {
             <div className="space-y-2">{w.parts.map((p) => <div key={p.label}><div className="flex justify-between text-xs"><span>{p.label} <span className="text-muted-foreground">x{p.weight}</span></span><span className="font-mono text-muted-foreground">{p.detail} · {p.value}</span></div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-accent transition-all duration-700" style={{ width: p.value + '%' }} /></div></div>)}</div>
           </div>}
         </div>
+        <div className="space-y-4">
+        <GardenProgressCards p={progress} />
         <div className="panel rise p-5">
           <div className="mb-3 flex items-center justify-between"><h2 className="font-display text-xl">Daily journal</h2><Button size="sm" variant="ghost" onClick={() => setEditing(blank(selected.id, todayISO()))} data-testid="button-new-log">New</Button></div>
-          <LogForm initial={editing} onSave={save} />
+          <LogForm initial={editing} onSave={save} sleepGoal={selected.sleepGoal} />
+        </div>
         </div>
       </div>
       <section className="panel rise mt-5 p-5">

@@ -1,7 +1,7 @@
 import type { DailyLog, Profile, Symptom } from './types';
 
 export function blankDailyLog(profile: Profile, date: string): DailyLog {
-  return { id: crypto.randomUUID(), profileId: profile.id, date, sleepHours: profile.sleepGoal, sleepQuality: 3, meals: '', hydration: 2, mood: 3, stress: 3, exercise: 60, social: false, notes: '', symptoms: [] };
+  return { id: crypto.randomUUID(), profileId: profile.id, date, wellbeingSaved: false, sleepHours: profile.sleepGoal, sleepQuality: 3, meals: '', hydration: 2, mood: 3, stress: 3, exercise: 60, social: false, notes: '', symptoms: [] };
 }
 
 export function validateLogDate(date: string) {
@@ -19,7 +19,7 @@ export function mergeHealthLog(logs: DailyLog[], profile: Profile, date: string,
 export function mergeWellbeingLog(logs: DailyLog[], input: DailyLog): DailyLog {
   validateLogDate(input.date);
   const existing = logs.find((log) => log.profileId === input.profileId && log.date === input.date);
-  return { ...input, id: existing?.id ?? input.id, symptoms: existing?.symptoms ?? [], notes: existing?.notes ?? '' };
+  return { ...input, wellbeingSaved: true, id: existing?.id ?? input.id, symptoms: existing?.symptoms ?? [], notes: existing?.notes ?? '' };
 }
 
 export function replaceDailyLog(logs: DailyLog[], log: DailyLog): DailyLog[] {
