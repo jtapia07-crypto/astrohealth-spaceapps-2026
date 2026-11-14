@@ -100,11 +100,14 @@ export default function NavePage() {
         <aside className="panel rise space-y-4 p-5">
           <div className="flex items-center justify-between gap-3"><h2 className="font-display text-lg" data-testid="environmental-parameters-heading">Environmental parameters · {inside ? 'Internal' : 'External'}</h2><Button size="sm" variant="ghost" onClick={() => { resetShip(); toast({ title: 'Ship reset to nominal values' }); }} data-testid="button-reset-ship"><RotateCcw />Nominal</Button></div>
           <p className="text-xs text-muted-foreground">Simulated readings. This does not monitor or control any real spacecraft.</p>
-          {INPUTS.map((i) => (
-            <div key={i.k} className="space-y-1.5">
-              <div className="flex justify-between text-sm"><span>{i.l}</span><span className={`font-mono ${stColor(inRange(i))}`} data-testid={`value-${i.k}`}>{ship[i.k]} {i.u}</span></div>
-            </div>
-          ))}
+          <dl className="divide-y divide-white/15">
+            {INPUTS.map((i) => (
+              <div key={i.k} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3.5 text-base sm:text-lg">
+                <dt>{i.l}</dt>
+                <dd className={`font-mono font-medium tabular-nums ${stColor(inRange(i))}`} data-testid={`value-${i.k}`}>{ship[i.k]} {i.u}</dd>
+              </div>
+            ))}
+          </dl>
         </aside>
       </div>
       </>}
