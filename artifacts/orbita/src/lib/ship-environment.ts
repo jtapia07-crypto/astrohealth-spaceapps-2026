@@ -37,5 +37,7 @@ export function internalReadings(ship: Ship): EnvironmentalReading[] {
     { id: 'radiation', label: 'Radiation dose rate', value: `${ship.radiation.toFixed(2)} mSv/d`, ok: within(ship.radiation, 0, 1) },
     { id: 'noise', label: 'Noise level', value: '55 dBA', ok: true },
     { id: 'air-circulation', label: 'Air circulation', value: 'Normal', ok: true },
+    { id: 'water', label: 'Water reserves', value: `${ship.water} %`, ok: within(ship.water, 30, 100) },
+    { id: 'energy', label: 'Battery charge', value: `${ship.energy} %`, ok: within(ship.energy, 30, 100) },
   ];
 }

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { AlertState, DailyLog, Mission, Profile, Ship, Symptom } from './types';
-import { DEFAULT_MISSION, DEFAULT_SHIP, DEMO_CREW, blankProfile, migrateLogs, migrateMission, migrateProfiles, seedLogs } from './defaults';
+import { DEFAULT_MISSION, DEFAULT_SHIP, DEMO_CREW, blankProfile, migrateLogs, migrateMission, migrateProfiles, migrateShip, seedLogs } from './defaults';
 import { load, save, saveStrict, saveEmergencyRecords, wipeAll } from './storage';
 import { validateEmergency, type EmergencyInput, type EmergencyRecord } from './emergency-history';
 import { mergeHealthLog, mergeWellbeingLog, replaceDailyLog } from './daily-log';
@@ -30,7 +30,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [crew, setCrew] = useState<Profile[]>(() => migrateProfiles(load('crew', DEMO_CREW)));
   const [selectedId, setSelectedId] = useState<string>(() => load('selected', DEMO_CREW[0].id));
   const [logs, setLogs] = useState<DailyLog[]>(() => migrateLogs(load('logs', seedLogs())));
-  const [ship, setShip] = useState<Ship>(() => load('ship', DEFAULT_SHIP));
+  const [ship, setShip] = useState<Ship>(() => migrateShip(load('ship', DEFAULT_SHIP)));
   const [mission, setMission] = useState<Mission>(() => migrateMission(load('mission', DEFAULT_MISSION())));
   const [alerts, setAlerts] = useState<Record<string, AlertState>>(() => load('alerts', {}));
   const [emergencyRecords, setEmergencyRecords] = useState<EmergencyRecord[]>(() => load('emergencies', []));

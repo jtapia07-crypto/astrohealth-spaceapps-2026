@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EXTERNAL_READINGS, internalReadings, lifeSupportStatus } from '../src/lib/ship-environment.ts';
 
-const cabin = { o2: 22.1, co2: 2.8, pressure: 101.3, temp: 22.4, humidity: 46, radiation: 0.62 };
+const cabin = { o2: 22.1, co2: 2.8, pressure: 101.3, temp: 22.4, humidity: 46, radiation: 0.62, water: 78, energy: 93 };
 
-test('internal readings match the requested eight parameters and units', () => {
+test('internal readings match the requested ten parameters and units', () => {
   const readings = internalReadings(cabin);
-  assert.deepEqual(readings.map((r) => r.label), ['Oxygen', 'CO₂', 'Cabin pressure', 'Temperature', 'Humidity', 'Radiation dose rate', 'Noise level', 'Air circulation']);
-  assert.deepEqual(readings.map((r) => r.value), ['22.1 %', '2.8 mmHg', '101.3 kPa', '22.4 °C', '46 %', '0.62 mSv/d', '55 dBA', 'Normal']);
+  assert.deepEqual(readings.map((r) => r.label), ['Oxygen', 'CO₂', 'Cabin pressure', 'Temperature', 'Humidity', 'Radiation dose rate', 'Noise level', 'Air circulation', 'Water reserves', 'Battery charge']);
+  assert.deepEqual(readings.map((r) => r.value), ['22.1 %', '2.8 mmHg', '101.3 kPa', '22.4 °C', '46 %', '0.62 mSv/d', '55 dBA', 'Normal', '78 %', '93 %']);
   assert.ok(readings.every((r) => r.ok));
 });
 
