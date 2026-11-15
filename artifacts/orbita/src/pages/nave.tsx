@@ -19,13 +19,13 @@ import {
 } from '@/lib/ship-environment';
 
 type NumKey = 'o2' | 'co2' | 'pressure' | 'temp' | 'gravity' | 'humidity' | 'radiation' | 'water' | 'energy';
-const INPUTS: { k: NumKey; l: string; u: string; min: number; max: number; step: number; ok: [number, number] }[] = [
+const INPUTS: { k: NumKey; l: string; u: string; min: number; max: number; step: number; ok: [number, number]; refNote?: string }[] = [
   { k: 'o2', l: 'Oxygen', u: '%', min: 14, max: 26, step: 0.1, ok: [19.5, 23.5] },
   { k: 'co2', l: 'CO2', u: 'mmHg', min: 0, max: 10, step: 0.1, ok: [0, 4] },
   { k: 'pressure', l: 'Pressure', u: 'kPa', min: 50, max: 110, step: 0.1, ok: [95, 105] },
-  { k: 'temp', l: 'Temperature', u: '°C', min: 10, max: 35, step: 0.1, ok: [18, 27] },
+  { k: 'temp', l: 'Temperature', u: '°C', min: 10, max: 35, step: 0.1, ok: [18, 27], refNote: 'NASA-STD-3001 Fig 6.2-2: 18–27 °C' },
   { k: 'gravity', l: 'Gravity', u: 'g', min: 0, max: 1, step: 0.01, ok: [0, 1] },
-  { k: 'humidity', l: 'Humidity', u: '%', min: 5, max: 95, step: 1, ok: [25, 75] },
+  { k: 'humidity', l: 'Humidity', u: '%', min: 5, max: 95, step: 1, ok: [25, 75], refNote: 'NASA-STD-3001 Fig 6.2-2: 25–75%' },
   { k: 'radiation', l: 'Radiation', u: 'mSv/d', min: 0, max: 10, step: 0.01, ok: [0, 1] },
   { k: 'water', l: 'Water', u: '%', min: 0, max: 100, step: 1, ok: [30, 100] },
   { k: 'energy', l: 'Power', u: '%', min: 0, max: 100, step: 1, ok: [30, 100] },
@@ -39,7 +39,7 @@ const PARTS: Record<PartId, { l: string; d: string }> = {
 };
 const SYSTEMS: { id: string; l: string; short: string; keys: NumKey[]; d: string }[] = [
   { id: 'eclss', l: 'Life support (ECLSS)', short: 'LIFE', keys: ['o2', 'co2', 'pressure'], d: 'Generates oxygen, removes CO2 and maintains pressure. Any adjustment requires an authorized procedure.' },
-  { id: 'termico', l: 'Thermal control', short: 'THERMAL', keys: ['temp', 'humidity'], d: 'Radiators and ventilation keep the cabin habitable and prevent condensation.' },
+  { id: 'termico', l: 'Thermal control', short: 'THERMAL', keys: ['temp', 'humidity'], d: 'Radiators and ventilation keep cabin temperature (18–27 °C) and relative humidity (25–75% RH) inside NASA-STD-3001 Figure 6.2-2 operating limits.' },
   { id: 'agua', l: 'Water recovery', short: 'WATER', keys: ['water'], d: 'The ISS recycles about 98% of its water, including urine and condensed sweat.' },
   { id: 'energia', l: 'Power', short: 'POWER', keys: ['energy'], d: 'Batteries and electrical distribution fed by the panels.' },
   { id: 'rad', l: 'Shielding and radiation', short: 'SHIELD', keys: ['radiation'], d: 'Dosimeters track the dose; during solar storms the crew shelters in shielded areas.' },
@@ -139,7 +139,7 @@ export default function NavePage() {
               <ShipInterior active={sys} onSelect={setSys} onExit={() => setInside(false)} modules={SYSTEMS.map((x) => ({ id: x.id, short: x.short, label: x.l, ok: x.keys.every((k) => { const d = INPUTS.find((n) => n.k === k)!; return ship[k] >= d.ok[0] && ship[k] <= d.ok[1]; }) }))} />
               <div className="mt-3 rounded-xl bg-secondary/60 p-4">
                 <h3 className="font-display text-xl">{s.l}</h3><p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{s.keys.map((k) => { const d = INPUTS.find((n) => n.k === k)!; return <div key={k} className="rounded-lg border border-border p-3"><div className="font-mono text-[10px] uppercase text-muted-foreground">{d.l}</div><div className={`font-mono text-xl ${stColor(inRange(d))}`}>{ship[k]} <span className="text-xs">{d.u}</span></div><div className="font-mono text-[10px] text-muted-foreground">ref {d.ok[0]}-{d.ok[1]}</div></div>; })}</div>
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{s.keys.map((k) => { const d = INPUTS.find((n) => n.k === k)!; return <div key={k} className="rounded-lg border border-border p-3"><div className="font-mono text-[10px] uppercase text-muted-foreground">{d.l}</div><div className={`font-mono text-xl ${stColor(inRange(d))}`}>{ship[k]} <span className="text-xs">{d.u}</span></div><div className="font-mono text-[10px] text-muted-foreground">{d.refNote ?? `ref ${d.ok[0]}-${d.ok[1]}`}</div></div>; })}</div>
                 {sys === 'eclss' && <dl className="mt-4 divide-y divide-white/15 border-t border-white/15" aria-label="Life support system status">
                   {lifeSupportStatus(ship).map((system) => (
                     <div key={system.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3 text-base">
@@ -177,14 +177,4 @@ export default function NavePage() {
           <dl className="divide-y divide-white/15">
             {environmentalReadings.map((i) => (
               <div key={i.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3.5 text-base sm:text-lg">
-                <dt>{i.label}</dt>
-                <dd className={`font-mono font-medium tabular-nums ${stColor(i.ok)}`} data-testid={`value-${i.id}`}>{i.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </aside>
-      </div>
-      </>}
-    </>
-  );
-}
+                <dt>{i.label}</
