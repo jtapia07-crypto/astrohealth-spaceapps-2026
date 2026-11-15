@@ -1,11 +1,13 @@
 import type { DailyLog, Profile, Ship } from './types';
+import type { SpaceWeather } from '../hooks/use-live-telemetry';
+
 export type HotspotId = 'cabeza' | 'ojos' | 'corazon' | 'huesos' | 'musculo' | 'sangre' | 'sudor' | 'saliva';
 export type Level = 'estable' | 'vigilar' | 'alerta';
 export interface HotspotReport { id: HotspotId; label: string; level: Level; score: number; metrics: { k: string; v: string }[]; condition: string; spaceflight: string; actions: string[]; warning?: string; disclaimer?: string; }
 const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
 const lvl = (s: number): Level => (s >= 75 ? 'estable' : s >= 50 ? 'vigilar' : 'alerta');
 
-export function healthReports(p: Profile, ship: Ship, log?: DailyLog): HotspotReport[] {
+export function healthReports(p: Profile, ship: Ship, log?: DailyLog, weather?: SpaceWeather): HotspotReport[] {
   const sym = log?.symptoms ?? [];
   const sleep = log?.sleepHours ?? p.sleepGoal;
   const hyd = log?.hydration ?? 2;
@@ -13,18 +15,24 @@ export function healthReports(p: Profile, ship: Ship, log?: DailyLog): HotspotRe
   const micro = ship.gravity < 0.3;
   const highPressure = p.sbp > 135 || p.dbp >= 90;
   const veryHighPressure = p.sbp >= 180 || p.dbp >= 120;
-  const head = clamp(100 - Math.max(0, ship.co2 - 3) * 12 - Math.max(0, p.sleepGoal - sleep) * 8 - (sym.includes('cefalea') ? 15 : 0) - (sym.includes('neurologico') ? 60 : 0) - ((log?.stress ?? 2) - 2) * 5);
+  const solarStorm = (weather?.kpIndex ?? 0) >= 5;
+  const majorFlare = weather?.flareClass ? /^[MX]/i.test(weather.flareClass) : false;
+  const stormPenalty = (solarStorm ? Math.min(12, ((weather?.kpIndex ?? 5) - 4) * 4) : 0) + (majorFlare ? 6 : 0);
+
+  const head = clamp(100 - Math.max(0, ship.co2 - 3) * 12 - Math.max(0, p.sleepGoal - sleep) * 8 - (sym.includes('cefalea') ? 15 : 0) - (sym.includes('neurologico') ? 60 : 0) - ((log?.stress ?? 2) - 2) * 5 - (solarStorm ? 4 : 0));
   const eyes = clamp(100 - (micro ? 12 : 0) - (sym.includes('congestion') ? 10 : 0) - (sym.includes('cefalea') ? 6 : 0) - (sym.includes('neurologico') ? 60 : 0) - Math.max(0, ship.co2 - 4) * 5 - Math.max(0, p.sleepGoal - sleep) * 3);
-  const heart = Math.min(highPressure ? (veryHighPressure ? 49 : 74) : 100, clamp(100 - (sym.includes('dolor_pecho') ? 65 : 0) - Math.max(0, p.hr - 90) * 2 - Math.max(0, p.sbp - 135) * 1.5 - Math.max(0, ship.temp - 27) * 4));
-  const bones = clamp(100 - (micro ? 18 : 0) - Math.max(0, 90 - ex) * 0.3 - (ship.radiation > 1 ? 6 : 0));
+  const heart = Math.min(highPressure ? (veryHighPressure ? 49 : 74) : 100, clamp(100 - (sym.includes('dolor_pecho') ? 65 : 0) - Math.max(0, p.hr - 90) * 2 - Math.max(0, p.sbp - 135) * 1.5 - Math.max(0, ship.temp - 27) * 4 - (solarStorm ? 3 : 0)));
+  const bones = clamp(100 - (micro ? 18 : 0) - Math.max(0, 90 - ex) * 0.3 - (ship.radiation > 1 ? Math.min(14, (ship.radiation - 1) * 3) : 0));
   const muscle = clamp(100 - (micro ? 14 : 0) - Math.max(0, 90 - ex) * 0.35 - (sym.includes('fatiga') ? 10 : 0));
-  const blood = clamp(100 - Math.max(0, 19.5 - ship.o2) * 18 - Math.max(0, 96 - p.spo2) * 8 - Math.max(0, ship.radiation - 1) * 6 - (sym.includes('falta_aire') ? 50 : 0));
+  const blood = clamp(100 - Math.max(0, 19.5 - ship.o2) * 18 - Math.max(0, 96 - p.spo2) * 8 - Math.max(0, ship.radiation - 1) * 6 - stormPenalty - (sym.includes('falta_aire') ? 50 : 0));
   const sweat = clamp(100 - Math.max(0, 2.2 - hyd) * 30 - Math.max(0, ship.temp - 26) * 6 - Math.max(0, ship.humidity - 70));
   const saliva = clamp(100 - Math.max(0, 2.2 - hyd) * 25 - Math.max(0, 30 - ship.humidity) * 2);
   const conservative = 'If it gets worse, contact the flight surgeon. Do not start or change medication without authorized instruction.';
+  const radSource = weather?.source === 'nasa-donki' ? 'live NASA DONKI' : 'simulated';
+
   const reports: HotspotReport[] = [
-    { id: 'cabeza', label: 'Head', score: head, level: lvl(head), metrics: [{ k: 'Cabin CO2', v: ship.co2 + ' mmHg' }, { k: 'Sleep', v: sleep + ' h' }, { k: 'Stress', v: (log?.stress ?? '-') + ' / 5' }],
-      condition: ship.co2 > 4 ? 'Elevated CO2: can cause headache, drowsiness and slower thinking.' : sleep < p.sleepGoal - 1.5 ? 'Accumulated sleep debt affects attention and mood.' : 'No notable signals in the current log.',
+    { id: 'cabeza', label: 'Head', score: head, level: lvl(head), metrics: [{ k: 'Cabin CO2', v: ship.co2 + ' mmHg' }, { k: 'Sleep', v: sleep + ' h' }, { k: 'Geomagnetic', v: weather ? `Kp ${weather.kpIndex}` : `Stress ${log?.stress ?? '-'}/5` }],
+      condition: ship.co2 > 4 ? 'Elevated CO2: can cause headache, drowsiness and slower thinking.' : solarStorm ? `Geomagnetic storm (Kp ${weather?.kpIndex}) active: heightened circadian and radiation vigilance.` : sleep < p.sleepGoal - 1.5 ? 'Accumulated sleep debt affects attention and mood.' : 'No notable signals in the current log.',
       spaceflight: 'In microgravity, body fluids shift toward the head (puffy face, congestion) and vision changes (SANS) are studied. CO2 builds up where ventilation is poor.',
       actions: ['Move to an area with good air circulation.', 'Hydrate and plan rest.', 'Record headaches or vision changes in the journal.', conservative],
       warning: sym.includes('neurologico') ? 'URGENT: neurological deficit logged. Escalate to the flight surgeon immediately.' : ship.co2 >= 6 ? 'Critical cabin CO2: report to mission control.' : undefined },
@@ -47,11 +55,11 @@ export function healthReports(p: Profile, ship: Ship, log?: DailyLog): HotspotRe
       condition: ex < 60 ? 'Low exercise: higher risk of atrophy and strength loss.' : 'Adequate exercise routine in the log.',
       spaceflight: 'Postural muscles (calves, back) atrophy quickly in microgravity without exercise.',
       actions: ['Combine treadmill, cycle and resistive training.', 'Back stretches.', conservative] },
-    { id: 'sangre', label: 'Blood', score: blood, level: lvl(blood), metrics: [{ k: 'Cabin O2', v: ship.o2 + ' %' }, { k: 'Baseline SpO2', v: p.spo2 + ' %' }, { k: 'Blood group', v: p.bloodGroup }],
-      condition: ship.o2 < 19.5 ? 'Low cabin O2: blood oxygenation may drop (hypoxia).' : 'Expected oxygenation adequate for cabin and profile.',
-      spaceflight: 'Plasma volume drops early in flight; space anemia has been described. Radiation is also a long-term risk.',
-      actions: ['Watch crewmates for dizziness, confusion or shortness of breath.', 'Reduce effort if O2 is low.', 'Report to mission control. Do not change O2 or pressure without an authorized procedure.'],
-      warning: sym.includes('falta_aire') ? 'URGENT: severe breathing difficulty logged.' : ship.o2 < 17 ? 'Critical cabin O2.' : undefined },
+    { id: 'sangre', label: 'Blood', score: blood, level: lvl(blood), metrics: [{ k: 'Cabin O2', v: ship.o2 + ' %' }, { k: 'Radiation', v: ship.radiation + ' mSv/d' }, { k: 'Solar flare', v: weather?.flareClass ?? 'Quiet' }],
+      condition: ship.o2 < 19.5 ? 'Low cabin O2: blood oxygenation may drop (hypoxia).' : ship.radiation > 1 ? `Elevated radiation (${ship.radiation} mSv/d via ${radSource}): increases hematologic and cellular stress.` : 'Expected oxygenation adequate for cabin and profile.',
+      spaceflight: 'Plasma volume drops early in flight; space anemia has been described. Solar particle events and cosmic radiation also stress blood-forming tissues.',
+      actions: ['Watch crewmates for dizziness, confusion or shortness of breath.', 'Minimize EVA or unshielded module exposure during solar events.', 'Report to mission control. Do not change O2 or pressure without an authorized procedure.'],
+      warning: sym.includes('falta_aire') ? 'URGENT: severe breathing difficulty logged.' : ship.o2 < 17 ? 'Critical cabin O2.' : ship.radiation >= 5 ? 'High radiation exposure: shelter protocol advised.' : undefined },
     { id: 'sudor', label: 'Sweat', score: sweat, level: lvl(sweat), metrics: [{ k: 'Hydration', v: hyd + ' L' }, { k: 'Cabin temp', v: ship.temp + ' °C' }, { k: 'Humidity', v: ship.humidity + ' %' }],
       condition: hyd < 1.5 || ship.temp > 27 ? 'Observation indicator: possible fluid loss from heat or exertion.' : 'No relevant observation signals.',
       spaceflight: 'Without natural convection, sweat does not drip: it pools on the skin and body cooling is less efficient.',
@@ -64,11 +72,11 @@ export function healthReports(p: Profile, ship: Ship, log?: DailyLog): HotspotRe
       disclaimer: 'Nothing is diagnosed from saliva. It is an observation/hydration indicator, not a lab result.' },
   ];
   const reasons: Partial<Record<HotspotId, string[]>> = {
-    cabeza: [ship.co2 > 3 ? `Cabin CO2 ${ship.co2} mmHg adds to the simulated risk` : '', sleep < p.sleepGoal ? `Sleep below goal: ${sleep} / ${p.sleepGoal} h` : '', sym.includes('cefalea') ? 'Headache logged' : '', (log?.stress ?? 2) > 2 ? `Stress ${log?.stress}/5` : ''],
+    cabeza: [ship.co2 > 3 ? `Cabin CO2 ${ship.co2} mmHg adds to the simulated risk` : '', solarStorm ? `Geomagnetic storm Kp ${weather?.kpIndex} (${radSource})` : '', sleep < p.sleepGoal ? `Sleep below goal: ${sleep} / ${p.sleepGoal} h` : '', sym.includes('cefalea') ? 'Headache logged' : '', (log?.stress ?? 2) > 2 ? `Stress ${log?.stress}/5` : ''],
     ojos: [micro ? 'Microgravity-related fluid-shift observation (no eye measurements)' : '', sym.includes('congestion') ? 'Facial congestion logged' : '', sym.includes('cefalea') ? 'Headache logged' : '', ship.co2 > 4 ? `Elevated cabin CO2: ${ship.co2} mmHg` : '', sleep < p.sleepGoal ? `Sleep below goal: ${sleep} / ${p.sleepGoal} h` : ''],
-    huesos: [micro ? 'Reduced mechanical loading in microgravity' : '', ex < 90 ? `Exercise below simulation reference: ${ex} / 90 min` : '', ship.radiation > 1 ? `Elevated simulated radiation: ${ship.radiation} mSv/d` : ''],
+    huesos: [micro ? 'Reduced mechanical loading in microgravity' : '', ex < 90 ? `Exercise below simulation reference: ${ex} / 90 min` : '', ship.radiation > 1 ? `Elevated radiation (${radSource}): ${ship.radiation} mSv/d` : ''],
     musculo: [ex < 90 ? `Exercise below simulation reference: ${ex} / 90 min` : '', micro ? 'Muscle deconditioning risk in microgravity' : '', sym.includes('fatiga') ? 'Marked fatigue logged' : ''],
-    sangre: [ship.o2 < 19.5 ? `Low cabin oxygen: ${ship.o2}%` : '', p.spo2 < 96 ? `Low stored baseline SpO2: ${p.spo2}%` : '', ship.radiation > 1 ? `Elevated simulated radiation: ${ship.radiation} mSv/d` : ''],
+    sangre: [ship.o2 < 19.5 ? `Low cabin oxygen: ${ship.o2}%` : '', p.spo2 < 96 ? `Low stored baseline SpO2: ${p.spo2}%` : '', ship.radiation > 1 ? `Elevated radiation (${radSource}): ${ship.radiation} mSv/d` : '', solarStorm ? `Active solar storm (Kp ${weather?.kpIndex}${weather?.flareClass ? ` · Flare ${weather.flareClass}` : ''})` : ''],
     sudor: [hyd < 2.2 ? `Hydration below simulation reference: ${hyd} / 2.2 L` : '', ship.temp > 26 ? `High cabin temperature: ${ship.temp} °C` : '', ship.humidity > 70 ? `High cabin humidity: ${ship.humidity}%` : ''],
     saliva: [hyd < 2.2 ? `Hydration below simulation reference: ${hyd} / 2.2 L` : '', ship.humidity < 30 ? `Dry cabin air: ${ship.humidity}% humidity` : ''],
   };
