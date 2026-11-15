@@ -56,7 +56,7 @@ export default function MisionPage() {
         </section>
       </div>
       <section className="panel rise mt-5 p-5">
-        <h2 className="font-display text-xl">NASA sources</h2>
+        <h2 className="font-display text-xl">NASA and partners sources</h2>
         <p className="mb-3 text-xs text-muted-foreground">Educational content. Check the original sources.</p>
         <ul className="grid gap-3 md:grid-cols-2">{NASA_REFERENCES.map((r, i) => <li key={r.url}><a href={r.url} target="_blank" rel="noreferrer" data-testid={`link-source-${i}`} className="group block rounded-lg border border-border p-4 transition hover:border-primary/60"><div className="flex items-start justify-between gap-2 font-semibold">{r.title}<ExternalLink className="h-4 w-4 shrink-0 text-primary" /></div><p className="mt-1 text-sm text-muted-foreground">{r.summary}</p><p className="mt-1 truncate font-mono text-[10px] text-primary">{r.url}</p></a></li>)}</ul>
       </section>
