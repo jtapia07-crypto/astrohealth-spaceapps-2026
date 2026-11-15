@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { deriveAlerts } from '@/lib/alerts';
 import { ActiveEvents, EventHistoryList } from '@/components/events/event-center';
 import { usePageMeta } from '@/hooks/use-page-meta';
+import { EXTERNAL_READINGS, internalReadings, lifeSupportStatus } from '@/lib/ship-environment';
 
 type NumKey = 'o2' | 'co2' | 'pressure' | 'temp' | 'gravity' | 'humidity' | 'radiation' | 'water' | 'energy';
 const INPUTS: { k: NumKey; l: string; u: string; min: number; max: number; step: number; ok: [number, number] }[] = [
@@ -56,6 +57,7 @@ export default function NavePage() {
   const upd = (k: keyof Ship, v: number | PartState) => setShip({ ...ship, [k]: v });
   const inRange = (i: (typeof INPUTS)[number]) => ship[i.k] >= i.ok[0] && ship[i.k] <= i.ok[1];
   const s = SYSTEMS.find((x) => x.id === sys)!;
+  const environmentalReadings = inside ? internalReadings(ship) : EXTERNAL_READINGS;
   return (
     <>
       <PageHead kicker={inside ? 'Interior · systems' : 'Exterior · space'} title={inside ? 'Inside the ship' : 'The ship'}>
@@ -77,6 +79,14 @@ export default function NavePage() {
               <div className="mt-3 rounded-xl bg-secondary/60 p-4">
                 <h3 className="font-display text-xl">{s.l}</h3><p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{s.keys.map((k) => { const d = INPUTS.find((n) => n.k === k)!; return <div key={k} className="rounded-lg border border-border p-3"><div className="font-mono text-[10px] uppercase text-muted-foreground">{d.l}</div><div className={`font-mono text-xl ${stColor(inRange(d))}`}>{ship[k]} <span className="text-xs">{d.u}</span></div><div className="font-mono text-[10px] text-muted-foreground">ref {d.ok[0]}-{d.ok[1]}</div></div>; })}</div>
+                {sys === 'eclss' && <dl className="mt-4 divide-y divide-white/15 border-t border-white/15" aria-label="Life support system status">
+                  {lifeSupportStatus(ship).map((system) => (
+                    <div key={system.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3 text-base">
+                      <dt>{system.label}</dt>
+                      <dd className={stColor(system.ok)} data-testid={`status-${system.id}`}>{system.value}</dd>
+                    </div>
+                  ))}
+                </dl>}
               </div>
             </div>
           )}
@@ -92,10 +102,10 @@ export default function NavePage() {
         <aside className="panel rise space-y-4 p-5">
           <div className="flex items-center justify-between gap-3"><h2 className="font-display text-lg" data-testid="environmental-parameters-heading">Environmental parameters · {inside ? 'Internal' : 'External'}</h2><Button size="sm" variant="ghost" onClick={() => { resetShip(); toast({ title: 'Ship reset to nominal values' }); }} data-testid="button-reset-ship"><RotateCcw />Nominal</Button></div>
           <dl className="divide-y divide-white/15">
-            {INPUTS.map((i) => (
-              <div key={i.k} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3.5 text-base sm:text-lg">
-                <dt>{i.l}</dt>
-                <dd className={`font-mono font-medium tabular-nums ${stColor(inRange(i))}`} data-testid={`value-${i.k}`}>{ship[i.k]} {i.u}</dd>
+            {environmentalReadings.map((i) => (
+              <div key={i.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3.5 text-base sm:text-lg">
+                <dt>{i.label}</dt>
+                <dd className={`font-mono font-medium tabular-nums ${stColor(i.ok)}`} data-testid={`value-${i.id}`}>{i.value}</dd>
               </div>
             ))}
           </dl>
