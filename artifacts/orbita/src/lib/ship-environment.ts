@@ -1,4 +1,5 @@
-import type { Ship } from './types';
+import type { Destination, Ship } from './types';
+import type { SpaceWeather } from '../hooks/use-live-telemetry';
 
 export interface EnvironmentalReading {
   id: string;
@@ -7,7 +8,8 @@ export interface EnvironmentalReading {
   ok: boolean;
 }
 
-const within = (value: number, min: number, max: number) => Number.isFinite(value) && value >= min && value <= max;
+const within = (value: number, min: number, max: number) =>
+  Number.isFinite(value) && value >= min && value <= max;
 
 // Exterior readings describe the nominal orbital demo, not the cabin atmosphere.
 export const EXTERNAL_READINGS: EnvironmentalReading[] = [
@@ -19,6 +21,77 @@ export const EXTERNAL_READINGS: EnvironmentalReading[] = [
   { id: 'solar-exposure', label: 'Solar exposure', value: 'Sunlight', ok: true },
   { id: 'debris-risk', label: 'Orbital debris risk', value: 'Low', ok: true },
 ];
+
+export function liveExternalReadings(
+  weather: SpaceWeather,
+  ship: Ship,
+  destination: Destination
+): EnvironmentalReading[] {
+  const gravityLabel =
+    destination === 'moon'
+      ? '0.165 g (Lunar)'
+      : destination === 'mars'
+        ? '0.38 g (Martian)'
+        : 'Microgravity';
+
+  const tempSign = weather.externalTempC > 0 ? '+' : '';
+  const isStorming = weather.kpIndex >= 5 || weather.solarFlareClass.startsWith('X');
+  const isElevated = weather.kpIndex >= 4 || weather.solarFlareClass.startsWith('M');
+
+  const solarActivityLabel = isStorming
+    ? `Storm · ${weather.solarFlareClass} (Kp ${weather.kpIndex})`
+    : isElevated
+      ? `Active · ${weather.solarFlareClass} (Kp ${weather.kpIndex})`
+      : `Quiet · ${weather.solarFlareClass} (Kp ${weather.kpIndex})`;
+
+  const externalRad = Number((ship.radiation * 2.1).toFixed(2));
+  const debrisRisk = weather.kpIndex >= 6 ? 'Elevated (Drag)' : 'Low';
+
+  return [
+    {
+      id: 'surface-temp',
+      label: 'Surface temperature',
+      value: `${tempSign}${weather.externalTempC.toFixed(1)} °C`,
+      ok: within(weather.externalTempC, -130, 125),
+    },
+    {
+      id: 'gravity-regime',
+      label: 'Gravity regime',
+      value: gravityLabel,
+      ok: true,
+    },
+    {
+      id: 'external-radiation',
+      label: 'Radiation dose rate',
+      value: `${externalRad.toFixed(2)} mSv/d`,
+      ok: externalRad <= 2.5,
+    },
+    {
+      id: 'solar-activity',
+      label: 'Solar activity',
+      value: solarActivityLabel,
+      ok: !isStorming,
+    },
+    {
+      id: 'orbital-altitude',
+      label: 'Orbital altitude',
+      value: `${weather.altitudeKm.toLocaleString('en-US')} km`,
+      ok: true,
+    },
+    {
+      id: 'solar-exposure',
+      label: 'Solar exposure',
+      value: `Sunlight (${weather.solarWindKms} km/s)`,
+      ok: true,
+    },
+    {
+      id: 'debris-risk',
+      label: 'Orbital debris risk',
+      value: debrisRisk,
+      ok: weather.kpIndex < 6,
+    },
+  ];
+}
 
 export function lifeSupportStatus(ship: Ship) {
   return [

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { AlertState, DailyLog, Mission, Profile, Ship, Symptom } from './types';
 import { DEFAULT_MISSION, DEFAULT_SHIP, DEMO_CREW, blankProfile, migrateLogs, migrateMission, migrateProfiles, migrateShip, seedLogs } from './defaults';
 import { load, save, saveStrict, saveEmergencyRecords, wipeAll } from './storage';
@@ -6,6 +6,7 @@ import { validateEmergency, type EmergencyInput, type EmergencyRecord } from './
 import { mergeHealthLog, mergeWellbeingLog, replaceDailyLog } from './daily-log';
 import { eventKey, legacyEventData, snapshotEvent, type EventData, type EventRecord } from './event-history';
 import type { Alert } from './alerts';
+import { useLiveTelemetry, type SpaceWeather } from '../hooks/use-live-telemetry';
 
 interface Store {
   crew: Profile[]; selected: Profile; selectId: (id: string) => void;
@@ -22,6 +23,9 @@ interface Store {
   resolveEvent: (alert: Alert, note: string) => void;
   emergencyRecords: EmergencyRecord[];
   addEmergencyRecord: (profileId: string, input: EmergencyInput) => void;
+  liveTelemetry: boolean;
+  setLiveTelemetry: (v: boolean) => void;
+  weather: SpaceWeather;
   resetAll: () => void;
 }
 const Ctx = createContext<Store | null>(null);
@@ -35,11 +39,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState<Record<string, AlertState>>(() => load('alerts', {}));
   const [emergencyRecords, setEmergencyRecords] = useState<EmergencyRecord[]>(() => load('emergencies', []));
   const [events, setEvents] = useState<EventData>(() => load('events', legacyEventData(load('alerts', {}))));
+  const [liveTelemetry, setLiveTelemetry] = useState<boolean>(true);
+
   useEffect(() => save('crew', crew), [crew]);
   useEffect(() => save('selected', selectedId), [selectedId]);
   useEffect(() => save('ship', ship), [ship]);
   useEffect(() => save('mission', mission), [mission]);
   useEffect(() => save('alerts', alerts), [alerts]);
+
+  const handleTickShip = useCallback((updater: (prev: Ship) => Ship) => {
+    setShip((prev) => updater(prev));
+  }, []);
+
+  const weather = useLiveTelemetry(mission.destination, liveTelemetry, handleTickShip);
 
   const value = useMemo<Store>(() => {
     const selected = crew.find((c) => c.id === selectedId) ?? crew[0] ?? DEMO_CREW[0];
@@ -92,9 +104,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         saveEmergencyRecords(next);
         setEmergencyRecords(next);
       },
+      liveTelemetry,
+      setLiveTelemetry,
+      weather,
       resetAll: () => { wipeAll(); setCrew(DEMO_CREW); setSelectedId(DEMO_CREW[0].id); setLogs(seedLogs()); setShip(DEFAULT_SHIP); setMission(DEFAULT_MISSION()); setAlerts({}); setEmergencyRecords([]); setEvents({ records: [], states: {} }); },
     };
-  }, [crew, selectedId, logs, ship, mission, alerts, emergencyRecords, events]);
+  }, [crew, selectedId, logs, ship, mission, alerts, emergencyRecords, events, liveTelemetry, weather]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export function useStore() { const s = useContext(Ctx); if (!s) throw new Error('StoreProvider missing'); return s; }

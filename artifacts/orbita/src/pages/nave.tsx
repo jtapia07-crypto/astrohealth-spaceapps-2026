@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { Radio, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DemoTag, PageHead } from '@/components/shell';
 import { ShipExterior, type PartId } from '@/components/ship-exterior';
@@ -11,7 +11,12 @@ import { useToast } from '@/hooks/use-toast';
 import { deriveAlerts } from '@/lib/alerts';
 import { ActiveEvents, EventHistoryList } from '@/components/events/event-center';
 import { usePageMeta } from '@/hooks/use-page-meta';
-import { EXTERNAL_READINGS, internalReadings, lifeSupportStatus } from '@/lib/ship-environment';
+import {
+  EXTERNAL_READINGS,
+  internalReadings,
+  lifeSupportStatus,
+  liveExternalReadings,
+} from '@/lib/ship-environment';
 
 type NumKey = 'o2' | 'co2' | 'pressure' | 'temp' | 'gravity' | 'humidity' | 'radiation' | 'water' | 'energy';
 const INPUTS: { k: NumKey; l: string; u: string; min: number; max: number; step: number; ok: [number, number] }[] = [
@@ -45,7 +50,18 @@ const stColor = (ok: boolean) => (ok ? 'text-accent' : 'text-destructive');
 
 export default function NavePage() {
   usePageMeta('Ship', 'Interactive exterior and interior systems of the simulated spacecraft with environmental readings.');
-  const { ship, setShip, resetShip, myLogs, selected, eventRecords } = useStore();
+  const {
+    ship,
+    setShip,
+    resetShip,
+    myLogs,
+    selected,
+    eventRecords,
+    destination,
+    weather,
+    liveTelemetry,
+    setLiveTelemetry,
+  } = useStore();
   const [view, setView] = useState<'ship' | 'history'>('ship');
   const shipAlerts = useMemo(() => deriveAlerts(ship, myLogs[0], selected).filter((a) => a.source === 'nave'), [ship, myLogs, selected]);
   const shipRecords = eventRecords.filter((e) => e.source === 'nave');
@@ -57,11 +73,56 @@ export default function NavePage() {
   const upd = (k: keyof Ship, v: number | PartState) => setShip({ ...ship, [k]: v });
   const inRange = (i: (typeof INPUTS)[number]) => ship[i.k] >= i.ok[0] && ship[i.k] <= i.ok[1];
   const s = SYSTEMS.find((x) => x.id === sys)!;
-  const environmentalReadings = inside ? internalReadings(ship) : EXTERNAL_READINGS;
+
+  const environmentalReadings = inside
+    ? internalReadings(ship)
+    : liveTelemetry
+      ? liveExternalReadings(weather, ship, destination)
+      : EXTERNAL_READINGS;
+
   return (
     <>
       <PageHead kicker={inside ? 'Interior · systems' : 'Exterior · space'} title={inside ? 'Inside the ship' : 'The ship'}>
-        <div className="flex items-center gap-3"><DemoTag text="Simulated telemetry" /><div className="text-right"><div className="font-display text-3xl font-bold text-primary" data-testid="text-ship-score">{score}</div><div className="font-mono text-[10px] uppercase text-muted-foreground">illustrative status</div></div></div>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !liveTelemetry;
+              setLiveTelemetry(next);
+              toast({
+                title: next ? 'Live telemetry enabled' : 'Live telemetry paused',
+                description: next
+                  ? 'Streaming real-time NASA DONKI & orbital sensor data every 2s.'
+                  : 'Telemetry frozen at current readings.',
+              });
+            }}
+            data-testid="button-toggle-live-telemetry"
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-xs transition ${
+              liveTelemetry
+                ? 'border-accent/50 bg-accent/15 text-accent'
+                : 'border-border bg-card/70 text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                liveTelemetry ? 'animate-pulse bg-accent' : 'bg-muted-foreground'
+              }`}
+            />
+            <Radio className="h-3.5 w-3.5" />
+            {liveTelemetry
+              ? weather.nasaConnected
+                ? 'LIVE · NASA DONKI'
+                : 'LIVE · ORBITAL SIM'
+              : 'TELEMETRY PAUSED'}
+          </button>
+          <DemoTag text={weather.nasaConnected ? 'NASA DONKI feed' : 'Simulated telemetry'} />
+          <div className="text-right">
+            <div className="font-display text-3xl font-bold text-primary" data-testid="text-ship-score">
+              {score}
+            </div>
+            <div className="font-mono text-[10px] uppercase text-muted-foreground">illustrative status</div>
+          </div>
+        </div>
       </PageHead>
       <div role="tablist" aria-label="Ship view" className="mb-5 inline-flex gap-1 rounded-xl border border-border bg-card/70 p-1">{([['ship', 'Ship'], ['history', `Historical records (${shipRecords.length})`]] as const).map(([v, l]) => <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)} data-testid={`tab-ship-${v}`} className={`rounded-lg px-4 py-2 text-sm transition ${view === v ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>{l}</button>)}</div>
       {view === 'history' ? <section aria-label="Ship historical records"><EventHistoryList records={shipRecords} testid="list-ship-history" emptyText="No resolved ship events yet. Resolved events are saved here with their note." /></section> : <>
@@ -100,7 +161,19 @@ export default function NavePage() {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">{(Object.keys(PARTS) as PartId[]).map((p) => <button key={p} onClick={() => { setInside(false); setPart(p); }} data-testid={`chip-part-${p}`} className="rounded-lg border border-border bg-card/60 p-2 text-left text-xs transition hover:border-primary/50"><div className="text-muted-foreground">{PARTS[p].l}</div><div className={`font-mono capitalize ${ship[p] === 'nominal' ? 'text-accent' : ship[p] === 'degradado' ? 'text-chart-3' : 'text-destructive'}`}>{STATE_LABEL[ship[p]]}</div></button>)}</div>
         </div>
         <aside className="panel rise space-y-4 p-5">
-          <div className="flex items-center justify-between gap-3"><h2 className="font-display text-lg" data-testid="environmental-parameters-heading">Environmental parameters · {inside ? 'Internal' : 'External'}</h2><Button size="sm" variant="ghost" onClick={() => { resetShip(); toast({ title: 'Ship reset to nominal values' }); }} data-testid="button-reset-ship"><RotateCcw />Nominal</Button></div>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg" data-testid="environmental-parameters-heading">
+                Environmental parameters · {inside ? 'Internal' : 'External'}
+              </h2>
+              {liveTelemetry && (
+                <p className="font-mono text-[11px] text-muted-foreground">
+                  Updated {weather.lastUpdated} · Kp {weather.kpIndex} · Flare {weather.solarFlareClass}
+                </p>
+              )}
+            </div>
+            <Button size="sm" variant="ghost" onClick={() => { resetShip(); toast({ title: 'Ship reset to nominal values' }); }} data-testid="button-reset-ship"><RotateCcw />Nominal</Button>
+          </div>
           <dl className="divide-y divide-white/15">
             {environmentalReadings.map((i) => (
               <div key={i.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3.5 text-base sm:text-lg">
