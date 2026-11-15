@@ -16,11 +16,11 @@ import { usePageMeta } from '@/hooks/use-page-meta';
 
 export default function HealthPage() {
   usePageMeta('Human', 'Illustrative health status of the selected astronaut on an interactive anatomical body map.');
-  const { crew, selected, selectId, ship, myLogs, eventRecords } = useStore();
-  const healthAlerts = useMemo(() => deriveAlerts(ship, myLogs[0], selected).filter((a) => a.source === 'salud'), [ship, myLogs, selected]);
+  const { crew, selected, selectId, ship, myLogs, eventRecords, weather, liveTelemetry } = useStore();
+  const healthAlerts = useMemo(() => deriveAlerts(ship, myLogs[0], selected, weather).filter((a) => a.source === 'salud'), [ship, myLogs, selected, weather]);
   const healthRecords = eventRecords.filter((e) => e.source === 'salud' && (e.profileId === selected.id || !e.profileId));
   const log = myLogs[0];
-  const reports = useMemo(() => healthReports(selected, ship, log), [selected, ship, log]);
+  const reports = useMemo(() => healthReports(selected, ship, log, weather), [selected, ship, log, weather]);
   const [open, setOpen] = useState<HotspotId | null>(null);
   const [panel, setPanel] = useState<PanelId>('biometric');
   const r = reports.find((x) => x.id === open);
@@ -54,7 +54,11 @@ export default function HealthPage() {
       <BiometricWarnings reports={reports} onOpen={setOpen} />
       <div className="panel rise relative h-[560px] min-w-0 overflow-hidden p-2 md:h-[640px]">
         <div className="absolute left-4 top-4 z-10 font-mono text-[11px] text-muted-foreground">
-          <div>{selected.name.toUpperCase()}</div><div>Simulated gravity · {ship.gravity} g</div>
+          <div>{selected.name.toUpperCase()}</div>
+          <div>Simulated gravity · {ship.gravity} g</div>
+          <div className={liveTelemetry ? 'text-primary' : 'text-muted-foreground'}>
+            {liveTelemetry ? `LIVE NASA DONKI · Kp ${weather.kpIndex} · ${ship.radiation} mSv/d` : `Manual telemetry · ${ship.radiation} mSv/d`}
+          </div>
         </div>
         <div className="absolute right-4 top-4 z-10 text-right"><div className="font-display text-4xl font-bold text-primary" data-testid="text-overall">{overall}</div><div className="font-mono text-[10px] uppercase text-muted-foreground">illustrative index</div></div>
         <div className="absolute inset-x-2 bottom-8 top-14">
@@ -63,7 +67,7 @@ export default function HealthPage() {
         <p className="absolute inset-x-0 bottom-3 text-center font-mono text-[11px] text-muted-foreground">Tap or focus a body point to open its report</p>
       </div>
       <SymptomForm />
-      <div className="mt-4 rounded-xl border border-border bg-card/70 p-4 text-xs leading-relaxed text-muted-foreground"><Info className="mb-1 h-4 w-4" />Scores derived from the profile, the latest daily log ({log ? log.date : 'no logs'}) and simulated ship telemetry. They are not diagnoses and do not replace evaluation by a professional.</div>
+      <div className="mt-4 rounded-xl border border-border bg-card/70 p-4 text-xs leading-relaxed text-muted-foreground"><Info className="mb-1 h-4 w-4" />Scores derived from the profile, the latest daily log ({log ? log.date : 'no logs'}) and {liveTelemetry ? 'live NASA DONKI + ship telemetry' : 'simulated ship telemetry'}. They are not diagnoses and do not replace evaluation by a professional.</div>
       </section>}
       </div>
       </div>
