@@ -1,4 +1,6 @@
 import type { DailyLog, Profile, Ship } from './types';
+import type { SpaceWeather } from '../hooks/use-live-telemetry';
+
 export type Severity = 'urgente' | 'critico' | 'precaucion' | 'info';
 export interface Alert { id: string; sig: string; source: 'salud' | 'nave'; severity: Severity; title: string; cause: string; actions: string[]; contact: string; link: string; }
 export const SEV_ORDER: Record<Severity, number> = { urgente: 0, critico: 1, precaucion: 2, info: 3 };
@@ -9,7 +11,7 @@ const MC = 'Report to mission control and follow the authorized spacecraft proce
 const NO_TOUCH = 'Do not change O2, pressure or medication without an authorized procedure.';
 const PART_STATE: Record<string, string> = { nominal: 'nominal', degradado: 'degraded', falla: 'failed' };
 
-export function deriveAlerts(ship: Ship, log: DailyLog | undefined, profile: Profile): Alert[] {
+export function deriveAlerts(ship: Ship, log: DailyLog | undefined, profile: Profile, weather?: SpaceWeather): Alert[] {
   const a: Alert[] = [];
   const add = (x: Omit<Alert, 'sig'> & { sig?: string | number }) => a.push({ ...x, sig: String(x.sig ?? x.severity) });
   if (ship.co2 >= 6) add({ id: 'co2', sig: 'c', source: 'nave', severity: 'critico', title: 'Cabin CO2 very high', cause: `CO2 at ${ship.co2} mmHg (operational reference approx. < 4 mmHg). Associated with headache, drowsiness and reduced concentration.`, actions: ['Reduce physical effort and watch the crew for headaches.', 'Check local ventilation flow (avoid areas without circulation).', MC, NO_TOUCH], contact: MC, link: '/nave' });
@@ -21,16 +23,31 @@ export function deriveAlerts(ship: Ship, log: DailyLog | undefined, profile: Pro
   else if (ship.pressure < 95 || ship.pressure > 105) add({ id: 'pres', sig: 'p', source: 'nave', severity: 'precaucion', title: 'Pressure outside nominal range', cause: `Pressure at ${ship.pressure} kPa (nominal approx. 101.3).`, actions: ['Watch for ear or sinus discomfort.', MC, NO_TOUCH], contact: MC, link: '/nave' });
   if (ship.temp < 18 || ship.temp > 27) add({ id: 'temp', sig: ship.temp < 18 ? 'f' : 'c', source: 'nave', severity: ship.temp < 14 || ship.temp > 31 ? 'critico' : 'precaucion', title: ship.temp > 27 ? 'Hot cabin' : 'Cold cabin', cause: `Temperature ${ship.temp} °C (comfort approx. 18-27 °C).`, actions: [ship.temp > 27 ? 'Increase hydration and reduce intense exercise.' : 'Wear additional clothing layers.', MC], contact: MC, link: '/nave' });
   if (ship.humidity < 25 || ship.humidity > 75) add({ id: 'hum', sig: ship.humidity < 25 ? 'l' : 'h', source: 'nave', severity: 'precaucion', title: 'Humidity out of range', cause: `Humidity ${ship.humidity}%. ${ship.humidity < 25 ? 'Dry mucous membranes and mouth.' : 'Condensation and microbial growth.'}`, actions: ['Watch for dry mouth or lips and keep hydrated.', MC], contact: MC, link: '/nave' });
-  if (ship.radiation >= 5) add({ id: 'rad', sig: 'c', source: 'nave', severity: 'critico', title: 'Very high radiation dose', cause: `${ship.radiation} mSv/day: consistent with a solar particle event (simulated).`, actions: ['Go to the shielded area / designated shelter.', 'Record time spent there.', MC], contact: MC, link: '/nave' });
+  if (ship.radiation >= 5) add({ id: 'rad', sig: 'c', source: 'nave', severity: 'critico', title: 'Very high radiation dose', cause: `${ship.radiation} mSv/day: consistent with a solar particle event.`, actions: ['Go to the shielded area / designated shelter.', 'Record time spent there.', MC], contact: MC, link: '/nave' });
   else if (ship.radiation > 1) add({ id: 'rad', sig: 'p', source: 'nave', severity: 'precaucion', title: 'Radiation above usual', cause: `${ship.radiation} mSv/day (typical ISS approx. 0.3-0.8).`, actions: ['Minimize time in less shielded areas.', MC], contact: MC, link: '/nave' });
   if (ship.water < 30) add({ id: 'water', sig: ship.water < 15 ? 'c' : 'p', source: 'nave', severity: ship.water < 15 ? 'critico' : 'precaucion', title: 'Low water reserve', cause: `Water at ${ship.water}%.`, actions: ['Prioritize water for drinking and basic hygiene.', MC], contact: MC, link: '/nave' });
   if (ship.energy < 30) add({ id: 'energy', sig: ship.energy < 15 ? 'c' : 'p', source: 'nave', severity: ship.energy < 15 ? 'critico' : 'precaucion', title: 'Low power', cause: `Power at ${ship.energy}%.`, actions: ['Switch off non-essential loads per the authorized list.', MC], contact: MC, link: '/nave' });
   (['windows', 'thrusters', 'solar', 'hull', 'comms'] as const).forEach((k) => {
     const names = { windows: 'Windows', thrusters: 'Thrusters', solar: 'Solar panels', hull: 'Hull', comms: 'Communications' };
     const st = PART_STATE[ship[k]] ?? ship[k];
-    if (ship[k] !== 'nominal') add({ id: 'part-' + k, sig: ship[k], source: 'nave', severity: ship[k] === 'falla' ? 'critico' : 'precaucion', title: `${names[k]}: ${st}`, cause: `The ${names[k].toLowerCase()} subsystem reports a ${st} state (simulated).`, actions: ['Visual or telemetry inspection if safe.', MC], contact: MC, link: '/nave' });
+    if (ship[k] !== 'nominal') add({ id: 'part-' + k, sig: ship[k], source: 'nave', severity: ship[k] === 'falla' ? 'critico' : 'precaucion', title: `${names[k]}: ${st}`, cause: `The ${names[k].toLowerCase()} subsystem reports a ${st} state.`, actions: ['Visual or telemetry inspection if safe.', MC], contact: MC, link: '/nave' });
   });
   if (ship.gravity < 0.1) add({ id: 'grav', sig: 'i', source: 'nave', severity: 'info', title: 'Sustained microgravity', cause: 'No load on the skeleton: risk of bone loss (approx. 1-1.5% per month at the hip) and muscle atrophy. Headward fluid shift is also linked to spaceflight vision changes.', actions: ['Complete the daily resistive and cardiovascular exercise routine (approx. 2 h on the ISS).'], contact: FS, link: '/' });
+
+  if ((weather && weather.kpIndex >= 5) || ship.radiation > 1.5) {
+    const kpText = weather ? `Kp ${weather.kpIndex}${weather.flareClass ? ` · Flare ${weather.flareClass}` : ''}` : 'Elevated radiation';
+    add({
+      id: 'h-solar-rad',
+      sig: `${weather?.kpIndex ?? 0}-${ship.radiation >= 5 ? 'c' : 'p'}`,
+      source: 'salud',
+      severity: ship.radiation >= 5 || (weather?.kpIndex ?? 0) >= 7 ? 'critico' : 'precaucion',
+      title: 'Crew solar radiation & EVA advisory',
+      cause: `${kpText} (${ship.radiation} mSv/d). Increased ionizing radiation exposure for crew in unshielded sections.`,
+      actions: ['Defer non-essential EVA and stay in shielded habitable modules.', 'Monitor fatigue, headache and hydration in daily log.', FS],
+      contact: FS,
+      link: '/nave',
+    });
+  }
 
   if (log) {
     const s = log.symptoms;
