@@ -1,64 +1,168 @@
-import { ExternalLink, Save } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { DemoTag, PageHead } from '@/components/shell';
+import { DESTINATIONS, NASA_SOURCES } from '@/data/nasa';
 import { useStore } from '@/lib/store';
-import { shiftISO } from '@/lib/defaults';
-import type { Destination, Mission } from '@/lib/types';
-import { MISSION_FACTS, NASA_REFERENCES } from '@/data/nasa';
 import { useToast } from '@/hooks/use-toast';
 import { usePageMeta } from '@/hooks/use-page-meta';
-import earthIssImage from '@/assets/destinations/iss.webp';
-import moonImage from '@/assets/destinations/moon.webp';
-import marsImage from '@/assets/destinations/mars.webp';
-
-const DEST: { id: Destination; image: string; alt: string }[] = [
-  { id: 'iss', image: earthIssImage, alt: 'The International Space Station above Earth’s blue horizon, photographed by the STS-130 crew' },
-  { id: 'moon', image: moonImage, alt: 'The full Moon with its gray lunar maria and detailed impact craters' },
-  { id: 'mars', image: marsImage, alt: 'Hubble true-color view of Mars with rust-colored terrain, dark surface markings and a bright polar cap' },
-];
 
 export default function MisionPage() {
-  usePageMeta('Mission', 'Destination and settings of the simulated mission with educational NASA references.');
-  const { mission, setMission } = useStore();
+  usePageMeta('Mission', 'Simulated mission settings, destination data, and NASA and partner scientific sources.');
+  const { destination, setDestination, mission, setMission } = useStore();
+  const [form, setForm] = useState(mission);
   const { toast } = useToast();
-  const [f, setF] = useState<Mission>(mission);
-  useEffect(() => setF(mission), [mission]);
-  const facts = MISSION_FACTS[f.destination];
+
+  const dest = DESTINATIONS.find((d) => d.id === destination) ?? DESTINATIONS[0];
+
+  const ret = (() => {
+    const t = Date.parse(form.start);
+    return Number.isNaN(t) ? '' : new Date(t + form.days * 864e5).toISOString().slice(0, 10);
+  })();
+
+  const save = (e: React.FormEvent) => {
+    e.preventDefault();
+    setMission(form);
+    toast({ title: 'Mission updated' });
+  };
+
   return (
     <>
-      <PageHead kicker="Flight plan" title="Mission"><DemoTag text="Demo mission" /></PageHead>
-      <div className="grid gap-3 sm:grid-cols-3">{DEST.map((d) => { const m = MISSION_FACTS[d.id]; const on = f.destination === d.id; return (
-        <button key={d.id} onClick={() => setF({ ...f, destination: d.id })} data-testid={`button-dest-${d.id}`} aria-pressed={on} className={`panel rise group p-5 text-left transition hover:-translate-y-1 ${on ? 'ring-2 ring-primary' : ''}`}>
-          <img src={d.image} alt={d.alt} width={160} height={112} draggable={false} className={`mb-3 h-28 w-40 rounded-lg transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none ${d.id === 'iss' ? 'object-cover' : 'object-contain object-left mix-blend-screen'}`} />
-          <div className="font-display text-xl">{m.name}</div><div className={`font-mono text-[11px] uppercase ${d.id === 'mars' ? 'text-chart-3' : 'text-muted-foreground'}`}>{m.kind}</div>
-        </button>); })}</div>
-      <p className="mt-2 font-mono text-[10px] text-muted-foreground">Destination imagery: NASA · NASA/ESA/STScI (Mars).</p>
-      {f.destination === 'mars' && <p className="mt-3 rounded-xl border border-chart-3/50 bg-chart-3/10 p-3 text-sm text-chart-3" data-testid="text-mars-note">Hypothetical scenario: no human has traveled to Mars. The data describes a future mission concept.</p>}
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]">
-        <section className="panel rise p-5">
-          <h2 className="font-display mb-3 text-xl">Destination data</h2>
-          <dl className="grid grid-cols-2 gap-3">{([['Distance', facts.distance], ['Gravity', facts.gravity], ['Typical duration', facts.duration]] as const).map(([k, v]) => <div key={k} className="rounded-lg bg-secondary/70 p-3"><dt className="font-mono text-[10px] uppercase text-muted-foreground">{k}</dt><dd className="mt-1 text-sm">{v}</dd></div>)}</dl>
-          <p className="mt-3 text-sm text-muted-foreground">{facts.note}</p>
+      <PageHead kicker="Flight plan · reference" title="Mission">
+        <DemoTag text="Reference data · simulated mission" />
+      </PageHead>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Mission destination">
+        {DESTINATIONS.map((d) => (
+          <button
+            key={d.id}
+            type="button"
+            role="radio"
+            aria-checked={destination === d.id}
+            onClick={() => setDestination(d.id)}
+            data-testid={`button-dest-${d.id}`}
+            className={`panel p-4 text-left transition ${
+              destination === d.id ? 'border-primary bg-primary/10' : 'hover:border-primary/40'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="font-display text-lg">{d.name}</div>
+              {destination === d.id && <Check className="h-4 w-4 shrink-0 text-primary" />}
+            </div>
+            <p className="mt-1 font-mono text-xs text-muted-foreground">{d.gravity}</p>
+          </button>
+        ))}
+      </div>
+
+      <div className="mb-6 grid gap-5 lg:grid-cols-2">
+        <section className="panel rise space-y-4 p-5" aria-label="Destination data">
+          <h2 className="font-display text-xl">Destination data</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg bg-secondary/50 p-3">
+              <div className="font-mono text-[10px] uppercase text-muted-foreground">Distance</div>
+              <div className="mt-1 text-sm">{dest.distance}</div>
+            </div>
+            <div className="rounded-lg bg-secondary/50 p-3">
+              <div className="font-mono text-[10px] uppercase text-muted-foreground">Gravity</div>
+              <div className="mt-1 text-sm">{dest.gravity}</div>
+            </div>
+            <div className="rounded-lg bg-secondary/50 p-3 sm:col-span-2">
+              <div className="font-mono text-[10px] uppercase text-muted-foreground">Typical duration</div>
+              <div className="mt-1 text-sm">{dest.duration}</div>
+            </div>
+            {'radiationNote' in dest && dest.radiationNote && (
+              <div className="rounded-lg bg-secondary/50 p-3 sm:col-span-2">
+                <div className="font-mono text-[10px] uppercase text-muted-foreground">Radiation environment</div>
+                <div className="mt-1 text-sm">{dest.radiationNote}</div>
+              </div>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">{dest.note}</p>
         </section>
-        <section className="panel rise space-y-3 p-5">
+
+        <form onSubmit={save} className="panel rise space-y-4 p-5" aria-label="Mission settings">
           <h2 className="font-display text-xl">Mission settings</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5"><Label className="font-mono text-[11px] uppercase text-muted-foreground">Callsign</Label><Input value={f.callsign} onChange={(e) => setF({ ...f, callsign: e.target.value })} data-testid="input-callsign" className="bg-background/60" /></div>
-            <div className="space-y-1.5"><Label className="font-mono text-[11px] uppercase text-muted-foreground">Start date</Label><Input type="date" value={f.startDate} onChange={(e) => setF({ ...f, startDate: e.target.value })} data-testid="input-start" className="bg-background/60" /></div>
-            <div className="space-y-1.5"><Label className="font-mono text-[11px] uppercase text-muted-foreground">Duration (days)</Label><Input type="number" min={1} value={f.durationDays} onChange={(e) => setF({ ...f, durationDays: Math.max(1, Number(e.target.value)) })} data-testid="input-duration" className="bg-background/60" /></div>
-            <div className="space-y-1.5"><Label className="font-mono text-[11px] uppercase text-muted-foreground">Crew members</Label><Input type="number" min={1} max={12} value={f.crewCount} onChange={(e) => setF({ ...f, crewCount: Math.max(1, Number(e.target.value)) })} data-testid="input-crew" className="bg-background/60" /></div>
+            <label className="text-xs text-muted-foreground">
+              CALLSIGN
+              <input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground"
+              />
+            </label>
+            <label className="text-xs text-muted-foreground">
+              START DATE
+              <input
+                type="date"
+                value={form.start}
+                onChange={(e) => setForm({ ...form, start: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground"
+              />
+            </label>
+            <label className="text-xs text-muted-foreground">
+              DURATION (DAYS)
+              <input
+                type="number"
+                min={1}
+                max={2000}
+                value={form.days}
+                onChange={(e) => setForm({ ...form, days: Number(e.target.value) })}
+                className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground"
+              />
+            </label>
+            <label className="text-xs text-muted-foreground">
+              CREW MEMBERS
+              <input
+                type="number"
+                min={1}
+                max={12}
+                value={form.crew}
+                onChange={(e) => setForm({ ...form, crew: Number(e.target.value) })}
+                className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground"
+              />
+            </label>
           </div>
-          <p className="font-mono text-xs text-muted-foreground">Estimated return: {f.startDate ? shiftISO(f.startDate, f.durationDays) : '-'}</p>
-          <Button className="w-full" onClick={() => { setMission(f); toast({ title: 'Mission updated', description: `${MISSION_FACTS[f.destination].name} · ${f.durationDays} days · ${f.crewCount} crew` }); }} data-testid="button-save-mission"><Save />Save mission</Button>
-        </section>
+          {ret && <p className="font-mono text-xs text-muted-foreground">Estimated return: {ret}</p>}
+          <Button type="submit" className="w-full" data-testid="button-save-mission">
+            Save mission
+          </Button>
+        </form>
       </div>
-      <section className="panel rise mt-5 p-5">
-        <h2 className="font-display text-xl">NASA and partners sources</h2>
-        <p className="mb-3 text-xs text-muted-foreground">Educational content. Check the original sources.</p>
-        <ul className="grid gap-3 md:grid-cols-2">{NASA_REFERENCES.map((r, i) => <li key={r.url}><a href={r.url} target="_blank" rel="noreferrer" data-testid={`link-source-${i}`} className="group block rounded-lg border border-border p-4 transition hover:border-primary/60"><div className="flex items-start justify-between gap-2 font-semibold">{r.title}<ExternalLink className="h-4 w-4 shrink-0 text-primary" /></div><p className="mt-1 text-sm text-muted-foreground">{r.summary}</p><p className="mt-1 truncate font-mono text-[10px] text-primary">{r.url}</p></a></li>)}</ul>
+
+      <section className="panel rise space-y-4 p-5" aria-label="NASA and partners sources">
+        <div>
+          <h2 className="font-display text-xl">NASA and partners sources</h2>
+          <p className="text-sm text-muted-foreground">
+            Official technical standards, flight datasets, and peer-reviewed spaceflight studies integrated into AstroHealth Guardian.
+          </p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          {NASA_SOURCES.map((s) => (
+            <a
+              key={s.id}
+              href={s.url}
+              target="_blank"
+              rel="noreferrer"
+              className="group rounded-xl border border-border bg-secondary/40 p-4 transition hover:border-primary/50"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  {'agency' in s && s.agency && (
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-accent">
+                      {s.agency}
+                    </div>
+                  )}
+                  <h3 className="font-display text-base group-hover:text-primary">{s.title}</h3>
+                </div>
+                <ExternalLink className="h-4 w-4 shrink-0 text-primary" />
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{s.summary}</p>
+              <div className="mt-2 truncate font-mono text-[11px] text-primary/90">{s.url}</div>
+            </a>
+          ))}
+        </div>
       </section>
     </>
   );
