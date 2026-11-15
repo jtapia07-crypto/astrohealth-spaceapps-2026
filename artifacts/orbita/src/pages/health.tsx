@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { BodyFigure } from '@/components/body-figure';
 import { OrganVisual } from '@/components/medical/organ-visual';
 import { BiometricWarnings } from '@/components/health/biometric-warnings';
-import { DemoTag, PageHead } from '@/components/shell';
+import { PageHead } from '@/components/shell';
 import { useStore } from '@/lib/store';
 import { BodyNav, Collapse, CrewPanel, DetailPanel, HistoryPanel, ProfilePanel, type PanelId } from '@/components/health/body-nav';
 import { healthReports, LEVEL_COLOR, LEVEL_LABEL, type HotspotId } from '@/lib/health';
@@ -29,7 +29,7 @@ export default function HealthPage() {
   return (
     <>
       <SpaceBackdrop variant="human" />
-      <PageHead kicker="Body log · crew member" title="The body in orbit"><DemoTag text="Illustrative scores" /></PageHead>
+      <PageHead kicker="Body log · crew member" title="The body in orbit" />
       {urgent && <a href="#health-events" onClick={(event) => { event.preventDefault(); setPanel('biometric'); requestAnimationFrame(() => document.getElementById('health-events')?.scrollIntoView({ block: 'start' })); }} data-testid="banner-urgent" className="rise mb-5 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/15 p-4 text-sm"><AlertOctagon className="h-6 w-6 shrink-0 text-destructive" /><span><b className="font-display tracking-wide">Urgent medical escalation.</b> A red-flag symptom was logged (chest pain, severe breathing difficulty or neurological deficit). Contact the flight surgeon immediately.</span></a>}
       <div className="grid min-w-0 grid-cols-1 items-start gap-6 md:grid-cols-[15rem_minmax(0,1fr)]">
       <aside aria-label="Crew selection" className="min-w-0 md:sticky md:top-24">

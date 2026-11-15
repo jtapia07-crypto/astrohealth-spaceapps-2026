@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pencil, Sprout, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { DemoTag, PageHead } from '@/components/shell';
+import { PageHead } from '@/components/shell';
 import { PlantScene } from '@/components/plant-scene';
 import { SpaceBackdrop } from '@/components/space-backdrop';
 import { LogForm } from '@/components/log-form';
@@ -53,7 +53,7 @@ export default function JardinPage() {
   return (
     <>
       <SpaceBackdrop variant="garden" />
-      <PageHead kicker={`${selected.name}'s garden`} title={selected.plantName || 'My plant'}><DemoTag text="Illustrative scores" /></PageHead>
+      <PageHead kicker={`${selected.name}'s garden`} title={selected.plantName || 'My plant'} />
       <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-4">
           <div className="panel rise relative overflow-hidden">

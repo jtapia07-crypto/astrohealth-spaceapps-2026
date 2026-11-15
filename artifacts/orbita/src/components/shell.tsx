@@ -24,7 +24,6 @@ export function Shell({ children }: { children: ReactNode }) {
             <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden><circle cx="16" cy="16" r="6" fill="hsl(22 95% 58%)" /><ellipse cx="16" cy="16" rx="14" ry="5.5" fill="none" stroke="hsl(172 58% 52%)" strokeWidth="1.5" transform="rotate(-24 16 16)" /></svg>
             <span className="font-display text-base font-bold tracking-[0.12em] sm:text-lg">AstroHealth Guardian</span>
           </Link>
-          <span className="hidden rounded-full border border-primary/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-primary sm:inline">Educational simulator</span>
           <span className="ml-auto hidden font-mono text-xs text-muted-foreground md:inline">{mission.callsign} · {selected.name}</span>
           <nav aria-label="Secondary" className="ml-auto flex gap-1 md:ml-4">
             <Link href="/perfil" data-testid="link-perfil" className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition ${loc === '/perfil' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}><UserRound className="h-4 w-4" />Profile</Link>

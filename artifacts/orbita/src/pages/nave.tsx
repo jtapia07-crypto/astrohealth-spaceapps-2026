@@ -3,6 +3,7 @@ import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DemoTag, PageHead } from '@/components/shell';
 import { ShipExterior, type PartId } from '@/components/ship-exterior';
+import { ShipInterior } from '@/components/ship-interior';
 import { useStore } from '@/lib/store';
 import { shipScore } from '@/lib/scores';
 import type { PartState, Ship } from '@/lib/types';
@@ -73,15 +74,7 @@ export default function NavePage() {
           ) : (
             <div className="panel rise p-4">
               <Button variant="ghost" size="sm" onClick={() => setInside(false)} data-testid="button-exit-ship"><ArrowLeft />Back to exterior</Button>
-              <svg viewBox="0 0 600 180" className="mt-2 w-full">
-                <rect x="10" y="20" width="580" height="140" rx="70" fill="hsl(226 35% 14%)" stroke="hsl(224 30% 30%)" strokeWidth="2" />
-                {SYSTEMS.map((x, i) => { const on = x.id === sys; const ok = x.keys.every((k) => { const d = INPUTS.find((n) => n.k === k)!; return ship[k] >= d.ok[0] && ship[k] <= d.ok[1]; }); return (
-                  <g key={x.id} className="cursor-pointer" onClick={() => setSys(x.id)} data-testid={`module-${x.id}`}>
-                    <rect x={60 + i * 82} y="45" width="72" height="90" rx="10" fill={on ? 'hsl(22 95% 58% / .2)' : 'hsl(224 34% 18%)'} stroke={on ? 'hsl(22 95% 58%)' : ok ? 'hsl(172 58% 48% / .6)' : 'hsl(352 82% 58%)'} strokeWidth="2" />
-                    <circle cx={96 + i * 82} cy="70" r="5" fill={ok ? 'hsl(172 58% 52%)' : 'hsl(352 82% 60%)'} className={ok ? '' : 'hotspot-ring'} />
-                    <text x={96 + i * 82} y="108" textAnchor="middle" fill="hsl(40 33% 91%)" fontSize="10" fontFamily="Chakra Petch">{x.short}</text>
-                  </g>); })}
-              </svg>
+              <ShipInterior active={sys} onSelect={setSys} modules={SYSTEMS.map((x) => ({ id: x.id, short: x.short, label: x.l, ok: x.keys.every((k) => { const d = INPUTS.find((n) => n.k === k)!; return ship[k] >= d.ok[0] && ship[k] <= d.ok[1]; }) }))} />
               <div className="mt-3 rounded-xl bg-secondary/60 p-4">
                 <h3 className="font-display text-xl">{s.l}</h3><p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{s.keys.map((k) => { const d = INPUTS.find((n) => n.k === k)!; return <div key={k} className="rounded-lg border border-border p-3"><div className="font-mono text-[10px] uppercase text-muted-foreground">{d.l}</div><div className={`font-mono text-xl ${stColor(inRange(d))}`}>{ship[k]} <span className="text-xs">{d.u}</span></div><div className="font-mono text-[10px] text-muted-foreground">ref {d.ok[0]}-{d.ok[1]}</div></div>; })}</div>
