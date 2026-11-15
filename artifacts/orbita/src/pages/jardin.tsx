@@ -17,12 +17,12 @@ import { usePageMeta } from '@/hooks/use-page-meta';
 
 type Range = 'dia' | 'semana' | 'mes';
 const blank = (profileId: string, date: string): DailyLog => ({ id: 'l-' + Date.now().toString(36), profileId, date, sleepHours: 7, sleepQuality: 3, meals: '', hydration: 2, mood: 3, stress: 3, exercise: 60, social: false, notes: '', symptoms: [] });
-const W_LABEL = { soleado: 'Sunny: ship in good condition', nublado: 'Cloudy: ship has deviations', tormenta: 'Storm: ship in poor condition' };
+const W_LABEL = { soleado: 'Sunny: ship & space weather nominal', nublado: 'Cloudy: elevated solar/ship load', tormenta: 'Storm: solar storm or critical ship state' };
 const RANGE_LABEL: Record<Range, string> = { dia: 'Day', semana: 'Week', mes: 'Month' };
 
 export default function JardinPage() {
-  usePageMeta('Garden', 'A digital plant that grows with your wellbeing journal; the weather reflects the ship status.');
-  const { selected, myLogs, saveWellbeingLog, deleteLog, ship } = useStore();
+  usePageMeta('Garden', 'A digital plant that grows with your wellbeing journal; the weather reflects the ship status and live space weather.');
+  const { selected, myLogs, saveWellbeingLog, deleteLog, ship, weather: spaceWeather, liveTelemetry } = useStore();
   const { toast } = useToast();
   const [editing, setEditing] = useState<DailyLog>(() => myLogs.find((l) => l.date === todayISO()) ?? blank(selected.id, todayISO()));
   const [range, setRange] = useState<Range>('semana');
@@ -30,7 +30,11 @@ export default function JardinPage() {
   const [toDelete, setToDelete] = useState<DailyLog | null>(null);
   const w = wellness(myLogs, selected.sleepGoal);
   const progress = useMemo(() => gardenProgress(myLogs, selected.id, selected.sleepGoal, todayISO()), [myLogs, selected.id, selected.sleepGoal]);
-  const sScore = shipScore(ship); const weather = weatherFor(sScore);
+  const solarPenalty = liveTelemetry
+    ? (spaceWeather.kpIndex >= 7 ? 28 : spaceWeather.kpIndex >= 5 ? 14 : 0) + (spaceWeather.flareClass && /^[MX]/i.test(spaceWeather.flareClass) ? 10 : 0)
+    : 0;
+  const sScore = Math.max(0, shipScore(ship) - solarPenalty);
+  const weather = weatherFor(sScore);
   const stage = growthStage(myLogs.length, w?.score ?? 0);
   const [from, to] = useMemo(() => {
     if (range === 'dia') return [anchor, anchor];
@@ -58,12 +62,19 @@ export default function JardinPage() {
         <div className="space-y-4">
           <div className="panel rise relative overflow-hidden">
             <div className="aspect-[400/320]"><PlantScene plant={selected.plant} climate={selected.climate} weather={weather} stage={stage} health={w?.score ?? 0} empty={!w} /></div>
-            <div className="absolute left-3 top-3 rounded-lg bg-background/70 px-3 py-1.5 font-mono text-[11px] backdrop-blur" data-testid="text-weather">{W_LABEL[weather]} ({sScore})</div>
+            <div className="absolute left-3 top-3 space-y-1 rounded-lg bg-background/75 px-3 py-1.5 font-mono text-[11px] backdrop-blur" data-testid="text-weather">
+              <div>{W_LABEL[weather]} ({sScore})</div>
+              <div className={liveTelemetry ? 'text-primary' : 'text-muted-foreground'}>
+                {liveTelemetry
+                  ? `LIVE NASA DONKI · Kp ${spaceWeather.kpIndex}${spaceWeather.flareClass ? ` · Flare ${spaceWeather.flareClass}` : ''} · ${ship.radiation} mSv/d`
+                  : `Manual telemetry · ${ship.radiation} mSv/d`}
+              </div>
+            </div>
             {!w && <div className="absolute inset-x-0 bottom-0 bg-background/80 p-4 text-center backdrop-blur" data-testid="empty-garden"><Sprout className="mx-auto mb-1 h-6 w-6 text-accent" /><p className="font-display text-lg">A seed is waiting</p><p className="text-sm text-muted-foreground">No logs yet. Save your first day to make it sprout.</p></div>}
           </div>
           {w && <div className="panel rise p-5">
             <div className="flex items-baseline justify-between"><h3 className="font-display text-lg">Why it grows this way</h3><span className="font-display text-3xl text-accent" data-testid="text-wellness">{w.score}</span></div>
-            <p className="mb-3 text-xs text-muted-foreground">Plant health = weighted average of your last {w.days} logs. Stage {stage}/5 based on the number of days logged. The weather depends only on the ship.</p>
+            <p className="mb-3 text-xs text-muted-foreground">Plant health = weighted average of your last {w.days} logs. Stage {stage}/5 based on the number of days logged. The weather reflects {liveTelemetry ? 'live NASA DONKI space weather + ship telemetry' : 'simulated ship telemetry'}.</p>
             <div className="space-y-2">{w.parts.map((p) => <div key={p.label}><div className="flex justify-between text-xs"><span>{p.label} <span className="text-muted-foreground">x{p.weight}</span></span><span className="font-mono text-muted-foreground">{p.detail} · {p.value}</span></div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-accent transition-all duration-700" style={{ width: p.value + '%' }} /></div></div>)}</div>
           </div>}
         </div>
