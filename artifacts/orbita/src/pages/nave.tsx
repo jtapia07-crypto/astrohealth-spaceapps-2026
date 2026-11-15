@@ -91,7 +91,6 @@ export default function NavePage() {
         </div>
         <aside className="panel rise space-y-4 p-5">
           <div className="flex items-center justify-between gap-3"><h2 className="font-display text-lg" data-testid="environmental-parameters-heading">Environmental parameters · {inside ? 'Internal' : 'External'}</h2><Button size="sm" variant="ghost" onClick={() => { resetShip(); toast({ title: 'Ship reset to nominal values' }); }} data-testid="button-reset-ship"><RotateCcw />Nominal</Button></div>
-          <p className="text-xs text-muted-foreground">Simulated readings. This does not monitor or control any real spacecraft.</p>
           <dl className="divide-y divide-white/15">
             {INPUTS.map((i) => (
               <div key={i.k} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3.5 text-base sm:text-lg">
