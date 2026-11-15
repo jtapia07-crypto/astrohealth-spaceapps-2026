@@ -31,7 +31,6 @@ export function ShipExterior({ ship, onPart, onEnter, active }: { ship: Ship; on
       <button type="button" onClick={onEnter} data-testid="button-enter-ship" className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-xl bg-primary px-5 py-2 text-center text-primary-foreground shadow-lg shadow-black/50 transition hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-foreground">
         <span className="font-display block text-sm font-bold tracking-[0.15em]">ENTER</span><span className="block font-mono text-[9px]">view interior</span>
       </button>
-      <span className="absolute left-3 top-3 rounded border border-chart-3/50 bg-[hsl(226_45%_7%/.7)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-chart-3">Illustrative spacecraft · not live telemetry</span>
     </div>
   );
 }

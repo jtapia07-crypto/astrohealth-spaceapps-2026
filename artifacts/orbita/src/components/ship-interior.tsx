@@ -1,12 +1,16 @@
 import cockpit from '@/assets/ship/cockpit-interior.webp';
+import { ArrowLeft } from 'lucide-react';
 
 export type InteriorModule = { id: string; short: string; label: string; ok: boolean };
 
-export function ShipInterior({ modules, active, onSelect }: { modules: InteriorModule[]; active: string; onSelect: (id: string) => void }) {
+export function ShipInterior({ modules, active, onSelect, onExit }: { modules: InteriorModule[]; active: string; onSelect: (id: string) => void; onExit: () => void }) {
   return (
     <div className="relative mt-2 w-full overflow-hidden rounded-xl border border-border" data-testid="ship-interior-scene">
       <img src={cockpit} alt="Illustrative spacecraft cockpit interior with a curved control console facing a window over Earth" className="block aspect-[4/3] w-full object-cover sm:aspect-square" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[hsl(226_45%_7%/.55)] to-transparent" />
+      <button type="button" onClick={onExit} data-testid="button-exit-ship" className="absolute left-1/2 top-[23%] z-10 flex min-h-11 -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-xl border border-primary/50 bg-black/65 px-4 py-2 font-display text-base font-bold text-primary shadow-lg shadow-black/40 transition hover:border-primary hover:bg-primary/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:top-[27%] sm:px-5 sm:text-lg">
+        <ArrowLeft className="h-5 w-5" aria-hidden="true" />Back to exterior
+      </button>
       <div className="absolute inset-x-[2%] top-[58%] sm:inset-x-[4%] sm:top-[59%]">
         <div role="group" aria-label="Ship compartments" className="flex items-stretch justify-center gap-1 rounded-[999px] border-2 border-[hsl(224_30%_30%)] bg-[hsl(226_35%_14%/.78)] px-3 py-2 shadow-[0_12px_30px_-12px_hsl(226_60%_3%/.9)] backdrop-blur-sm sm:gap-2 sm:px-8 sm:py-4">
           {modules.map((m) => {

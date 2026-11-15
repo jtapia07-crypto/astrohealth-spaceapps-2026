@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DemoTag, PageHead } from '@/components/shell';
 import { ShipExterior, type PartId } from '@/components/ship-exterior';
@@ -73,8 +73,7 @@ export default function NavePage() {
             </div>
           ) : (
             <div className="panel rise p-4">
-              <Button variant="ghost" size="sm" onClick={() => setInside(false)} data-testid="button-exit-ship"><ArrowLeft />Back to exterior</Button>
-              <ShipInterior active={sys} onSelect={setSys} modules={SYSTEMS.map((x) => ({ id: x.id, short: x.short, label: x.l, ok: x.keys.every((k) => { const d = INPUTS.find((n) => n.k === k)!; return ship[k] >= d.ok[0] && ship[k] <= d.ok[1]; }) }))} />
+              <ShipInterior active={sys} onSelect={setSys} onExit={() => setInside(false)} modules={SYSTEMS.map((x) => ({ id: x.id, short: x.short, label: x.l, ok: x.keys.every((k) => { const d = INPUTS.find((n) => n.k === k)!; return ship[k] >= d.ok[0] && ship[k] <= d.ok[1]; }) }))} />
               <div className="mt-3 rounded-xl bg-secondary/60 p-4">
                 <h3 className="font-display text-xl">{s.l}</h3><p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{s.keys.map((k) => { const d = INPUTS.find((n) => n.k === k)!; return <div key={k} className="rounded-lg border border-border p-3"><div className="font-mono text-[10px] uppercase text-muted-foreground">{d.l}</div><div className={`font-mono text-xl ${stColor(inRange(d))}`}>{ship[k]} <span className="text-xs">{d.u}</span></div><div className="font-mono text-[10px] text-muted-foreground">ref {d.ok[0]}-{d.ok[1]}</div></div>; })}</div>
